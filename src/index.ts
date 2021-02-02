@@ -8,6 +8,7 @@ import { env } from "./config/globals";
 import { logger } from "./config/logger";
 
 import { Server } from "./api/server";
+import { connectToMongo, closeMongo } from "./db/index";
 
 // Startup
 (async function main() {
@@ -17,16 +18,20 @@ import { Server } from "./api/server";
 
     server.listen(env.NODE_PORT);
 
+    connectToMongo();
+
     server.on("listening", () => {
       logger.info(
         `Carezy node server is listening on port ${env.NODE_PORT} in ${env.NODE_ENV} mode`
       );
     });
 
-    server.on("close", () => {
+    server.on("close", async () => {
       logger.info("Carezy node server closed");
+      closeMongo();
     });
   } catch (err) {
     logger.error(err.stack);
+    closeMongo();
   }
 })();
