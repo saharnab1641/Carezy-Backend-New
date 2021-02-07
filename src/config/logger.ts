@@ -6,7 +6,6 @@ import { env } from "./globals";
 
 const logDir = "logs";
 
-// Create the log directory if it does not exist
 if (!existsSync(logDir)) {
   mkdirSync(logDir);
 }

@@ -9,11 +9,6 @@ export class Server {
     initRestRoutes(this._app);
   }
 
-  /**
-   * Get Express app
-   *
-   * @returns {express.Application} Returns Express app
-   */
   public get app(): express.Application {
     return this._app;
   }
