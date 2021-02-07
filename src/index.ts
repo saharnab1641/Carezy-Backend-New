@@ -8,17 +8,17 @@ import { env } from "./config/globals";
 import { logger } from "./config/logger";
 
 import { Server } from "./api/server";
-import { connectToMongo, closeMongo } from "./db/index";
+import { MongoConnect } from "./db/index";
 
-// Startup
 (async function main() {
+  const mongoConnect = new MongoConnect();
   try {
     const app: express.Application = new Server().app;
     const server: HttpServer = createServer(app);
 
     server.listen(env.NODE_PORT);
 
-    connectToMongo();
+    mongoConnect.connectToMongo();
 
     server.on("listening", () => {
       logger.info(
@@ -28,10 +28,10 @@ import { connectToMongo, closeMongo } from "./db/index";
 
     server.on("close", async () => {
       logger.info("Carezy node server closed");
-      closeMongo();
+      mongoConnect.closeMongo();
     });
   } catch (err) {
     logger.error(err.stack);
-    closeMongo();
+    mongoConnect.closeMongo();
   }
 })();

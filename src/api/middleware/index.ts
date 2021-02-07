@@ -6,13 +6,8 @@ import { json, NextFunction, Request, Response, Router } from "express";
 
 import { logger } from "../../config/logger";
 import { env } from "../../config/globals";
+import { AuthService } from "../../services/auth";
 
-/**
- * Init Express middleware
- *
- * @param {Router} router
- * @returns {void}
- */
 export function registerMiddleware(router: Router): void {
   router.use(helmet());
 
@@ -25,7 +20,6 @@ export function registerMiddleware(router: Router): void {
   router.use(json());
   router.use(compression());
 
-  // Log incoming requests
   router.use((req: Request, res: Response, next: NextFunction) => {
     if (env.NODE_ENV !== "test") {
       const ip: string | string[] | undefined =
@@ -40,5 +34,5 @@ export function registerMiddleware(router: Router): void {
     return next();
   });
 
-  // Setup passport strategies
+  new AuthService().initStrategies();
 }
