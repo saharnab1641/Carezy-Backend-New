@@ -1,15 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 
-export class UserController {
+export class PatientController {
   public async readUsers(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      const users: String = "Test";
-
-      return res.json({ status: res.statusCode, data: users });
+      return res.json({ data: req.user });
     } catch (err) {
       return next(err);
     }

@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { IComponentRoutes } from "../index";
-import { UserController } from "./controller";
+import { PatientController } from "./controller";
 import { AuthService } from "../../../services/auth";
 
-export class UserRoutes implements IComponentRoutes<UserController> {
-  readonly controller: UserController = new UserController();
+export class PatientRoutes implements IComponentRoutes<PatientController> {
+  readonly controller: PatientController = new PatientController();
   readonly router: Router = Router();
   authService: AuthService;
 
