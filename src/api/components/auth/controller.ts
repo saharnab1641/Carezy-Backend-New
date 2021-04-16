@@ -2,6 +2,7 @@ import { bind } from "decko";
 import { NextFunction, Request, Response } from "express";
 import { authenticate } from "passport";
 import { AuthService } from "../../../services/auth";
+import { env } from "../../../config/globals";
 
 export class AuthController {
   authService: AuthService;
@@ -28,7 +29,11 @@ export class AuthController {
         req.login(user, { session: false }, async (error) => {
           if (error) return next(error);
 
-          const body: object = { _id: user._id, email: user.email };
+          const body: object = {
+            id: user._id,
+            name: user.username,
+            role: user.role,
+          };
           const token: string = this.authService.createToken(body);
 
           return res.json({ token });
@@ -44,6 +49,11 @@ export class AuthController {
     res: Response,
     next: NextFunction
   ) {
+    if (req.body.role === env.PATIENT) {
+      req.body.password = "fill";
+      req.body.username = "fill";
+    }
+
     authenticate(
       "local-signup",
       { session: false },
@@ -54,7 +64,7 @@ export class AuthController {
 
         if (!user) {
           return res.status(401).json({
-            data: "User is not authorized",
+            data: "User not registered. Try again!",
             status: 401,
           });
         }

@@ -57,6 +57,7 @@ export class AuthService {
               status: 401,
             });
           }
+          req.user = user;
           return next();
         })(req, res, next);
       } catch (err) {

@@ -5,4 +5,9 @@ export const env = {
   JWT_SECRET: process.env.JWT_SECRET || "RANDOM_STRING",
   JWT_AUDIENCE: process.env.JWT_AUDIENCE,
   JWT_ISSUER: process.env.JWT_ISSUER,
+  PATIENT: "patient",
+  DOCTOR: "doctor",
+  NURSE: "nurse",
+  RECEPTION: "reception",
+  HOSPITAL: "hospital",
 };
