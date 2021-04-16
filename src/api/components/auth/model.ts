@@ -32,9 +32,9 @@ export const UserSchema: Schema<IUser> = new Schema({
     type: String,
     required: true,
   },
-  contact2: {
-    type: String,
-  },
+  // contact2: {
+  //   type: String,
+  // },
   role: {
     type: String,
     required: true,

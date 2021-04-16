@@ -49,10 +49,8 @@ export class AuthController {
     res: Response,
     next: NextFunction
   ) {
-    if (req.body.role === env.PATIENT) {
-      req.body.password = "fill";
-      req.body.username = "fill";
-    }
+    req.body.password = "fill";
+    req.body.username = "fill";
 
     authenticate(
       "local-signup",
