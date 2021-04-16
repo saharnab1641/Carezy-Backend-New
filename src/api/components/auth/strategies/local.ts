@@ -4,6 +4,7 @@ import { randomBytes } from "crypto";
 import { env } from "../../../../config/globals";
 import { v4 as uuidv4 } from "uuid";
 import { generate } from "generate-password";
+import { MailService } from "../../../../services/mail";
 
 export class LocalStrategy {
   public signUpStrategy: Strategy = new Strategy(
@@ -13,6 +14,7 @@ export class LocalStrategy {
       passReqToCallback: true,
     },
     async (req, username, password, done) => {
+      const mailService: MailService = new MailService();
       try {
         const newUser: Partial<IUser> = {
           email: req.body.email,
@@ -27,14 +29,19 @@ export class LocalStrategy {
           numbers: true,
           strict: true,
         });
-        newUser.passtest = newUser.password;
 
-        const user = await UserModel.create(newUser);
+        const user: IUser = await UserModel.create(newUser);
 
         // switch (user.role) {
         //   case env.PATIENT: {
         //   }
         // }
+
+        mailService.sendMail(
+          user.email.toString(),
+          "Login Details",
+          `<b>Username<b>: ${newUser.username}<br><b>Password<b>: ${newUser.password}`
+        );
 
         return done(null, user);
       } catch (error) {
