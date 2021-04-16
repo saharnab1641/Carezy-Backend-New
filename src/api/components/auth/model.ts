@@ -9,7 +9,6 @@ export interface IUser extends Document {
   // contact2: String;
   role: String;
   password: String;
-  passtest: String;
 }
 
 export const UserSchema: Schema<IUser> = new Schema({
@@ -42,9 +41,6 @@ export const UserSchema: Schema<IUser> = new Schema({
   password: {
     type: String,
     required: true,
-  },
-  passtest: {
-    type: String,
   },
 });
 

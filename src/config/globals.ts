@@ -5,6 +5,8 @@ export const env = {
   JWT_SECRET: process.env.JWT_SECRET || "RANDOM_STRING",
   JWT_AUDIENCE: process.env.JWT_AUDIENCE,
   JWT_ISSUER: process.env.JWT_ISSUER,
+  GMAIL_USER: process.env.GMAIL_USER,
+  GMAIL_PASS: process.env.GMAIL_PASS,
   PATIENT: "patient",
   DOCTOR: "doctor",
   NURSE: "nurse",
