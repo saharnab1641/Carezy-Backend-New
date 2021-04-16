@@ -12,4 +12,16 @@ export class PatientController {
       return next(err);
     }
   }
+
+  public async test(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      return res.json({ data: "Test" });
+    } catch (err) {
+      return next(err);
+    }
+  }
 }
