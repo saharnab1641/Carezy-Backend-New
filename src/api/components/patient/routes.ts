@@ -13,12 +13,5 @@ export class PatientRoutes implements IComponentRoutes<PatientController> {
     this.initRoutes();
   }
 
-  initRoutes(): void {
-    this.router.get(
-      "/profile",
-      this.authService.isAuthorized(),
-      this.controller.readUsers
-    );
-    // this.router.get("/test", this.controller.test);
-  }
+  initRoutes(): void {}
 }
