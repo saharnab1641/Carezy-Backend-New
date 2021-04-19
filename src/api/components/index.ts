@@ -14,5 +14,5 @@ export interface IComponentRoutes<T> {
 
 export function registerApiRoutes(router: Router, prefix: string = ""): void {
   router.use(`${prefix}/auth`, new AuthRoutes().router);
-  router.use(`${prefix}/appointment`, new AppointmentRoutes().router);
+  // router.use(`${prefix}/appointment`, new AppointmentRoutes().router);
 }

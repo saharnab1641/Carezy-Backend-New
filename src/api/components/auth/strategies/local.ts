@@ -7,6 +7,7 @@ import { MailService } from "../../../../services/mail";
 import { IPatient, PatientModel } from "../../patient/model";
 import { DoctorModel, IDoctor } from "../../doctor/model";
 import { AuthModel, IAuth } from "../model";
+import { NurseModel } from "../../nurse/model";
 
 export class LocalStrategy {
   public signUpStrategy: Strategy = new Strategy(
@@ -35,23 +36,23 @@ export class LocalStrategy {
 
         let user: any;
 
+        const resource: any = {
+          ...auth,
+          ...req.body.resource,
+          authId: newAuth._id,
+        };
+
         switch (req.body.role) {
           case env.PATIENT: {
-            const resource: IPatient = {
-              ...auth,
-              ...req.body.resource,
-              authId: newAuth._id,
-            };
             user = await PatientModel.create(resource);
             break;
           }
           case env.DOCTOR: {
-            const resource: IDoctor = {
-              ...auth,
-              ...req.body.resource,
-              authId: newAuth._id,
-            };
             user = await DoctorModel.create(resource);
+            break;
+          }
+          case env.NURSE: {
+            user = await NurseModel.create(resource);
             break;
           }
         }
