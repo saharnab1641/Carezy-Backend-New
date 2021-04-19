@@ -30,8 +30,9 @@ export class AuthController {
           if (error) return next(error);
 
           const body: object = {
-            id: user._id,
-            name: user.username,
+            username: user.username,
+            firstname: user.firstname,
+            lastname: user.lastname,
             role: user.role,
           };
           const token: string = this.authService.createToken(body);

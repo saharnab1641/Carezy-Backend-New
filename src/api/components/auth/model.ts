@@ -1,21 +1,24 @@
-import { hash, compare } from "bcrypt";
 import { Schema, Document, model, Model } from "mongoose";
+import { hash, compare } from "bcrypt";
 
-export interface IUser extends Document {
-  _id: String;
+export interface IAuth extends Document {
+  firstname: String;
+  lastname: String;
   username: String;
   email: String;
-  contact1: String;
-  // contact2: String;
-  role: String;
+  contact: String;
   password: String;
+  role: String;
 }
 
-export const UserSchema: Schema<IUser> = new Schema({
-  _id: {
+export const AuthSchema: Schema<IAuth> = new Schema({
+  firstname: {
     type: String,
     required: true,
-    unique: true,
+  },
+  lastname: {
+    type: String,
+    required: true,
   },
   username: {
     type: String,
@@ -25,16 +28,8 @@ export const UserSchema: Schema<IUser> = new Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
   },
-  contact1: {
-    type: String,
-    required: true,
-  },
-  // contact2: {
-  //   type: String,
-  // },
-  role: {
+  contact: {
     type: String,
     required: true,
   },
@@ -42,21 +37,24 @@ export const UserSchema: Schema<IUser> = new Schema({
     type: String,
     required: true,
   },
+  role: {
+    type: String,
+    required: true,
+  },
 });
 
-UserSchema.pre("save", async function (next: Function) {
-  const user = this;
+AuthSchema.pre("save", async function (next: Function) {
+  const user: IAuth = this;
   const hashStr: String = await hash(user.password, 10);
-  console.log(user.password);
   user.password = hashStr;
   next();
 });
 
-UserSchema.methods.isValidPassword = async function (password: String) {
-  const user = this;
+AuthSchema.methods.isValidPassword = async function (password: String) {
+  const user: IAuth = this;
   const compareHash = await compare(password, user.password.toString());
 
   return compareHash;
 };
 
-export const UserModel: Model<IUser> = model("user", UserSchema);
+export const AuthModel: Model<IAuth> = model("auth", AuthSchema);

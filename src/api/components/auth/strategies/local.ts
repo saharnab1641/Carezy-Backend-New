@@ -1,10 +1,12 @@
 import { Strategy } from "passport-local";
-import { UserModel, IUser } from "../model";
 import { randomBytes } from "crypto";
 import { env } from "../../../../config/globals";
 import { v4 as uuidv4 } from "uuid";
 import { generate } from "generate-password";
 import { MailService } from "../../../../services/mail";
+import { IPatient, PatientModel } from "../../patient/model";
+import { DoctorModel, IDoctor } from "../../doctor/model";
+import { AuthModel, IAuth } from "../model";
 
 export class LocalStrategy {
   public signUpStrategy: Strategy = new Strategy(
@@ -16,31 +18,48 @@ export class LocalStrategy {
     async (req, username, password, done) => {
       const mailService: MailService = new MailService();
       try {
-        const newUser: Partial<IUser> = {
-          email: req.body.email,
-          role: req.body.role,
-          contact1: req.body.contact1,
-          password,
+        const auth: IAuth = {
+          ...req.body.auth,
+          username: randomBytes(5).toString("hex"),
+          password: generate({
+            length: 8,
+            numbers: true,
+            strict: true,
+          }),
         };
-        newUser._id = uuidv4();
-        newUser.username = randomBytes(5).toString("hex");
-        newUser.password = generate({
-          length: 8,
-          numbers: true,
-          strict: true,
+
+        const newAuth: IAuth = await AuthModel.create({
+          ...auth,
+          role: req.body.role,
         });
 
-        const user: IUser = await UserModel.create(newUser);
+        let user: any;
 
-        // switch (user.role) {
-        //   case env.PATIENT: {
-        //   }
-        // }
+        switch (req.body.role) {
+          case env.PATIENT: {
+            const resource: IPatient = {
+              ...auth,
+              ...req.body.resource,
+              authId: newAuth._id,
+            };
+            user = await PatientModel.create(resource);
+            break;
+          }
+          case env.DOCTOR: {
+            const resource: IDoctor = {
+              ...auth,
+              ...req.body.resource,
+              authId: newAuth._id,
+            };
+            user = await DoctorModel.create(resource);
+            break;
+          }
+        }
 
         mailService.sendMail(
-          user.email.toString(),
+          auth.email.toString(),
           "Login Details",
-          `<b>Username<b>: ${newUser.username}<br><b>Password<b>: ${newUser.password}`
+          `<b>Username<b>: ${auth.username}<br><b>Password<b>: ${auth.password}`
         );
 
         return done(null, user);
@@ -54,10 +73,11 @@ export class LocalStrategy {
     {
       usernameField: "username",
       passwordField: "password",
+      passReqToCallback: true,
     },
-    async (username, password, done) => {
+    async (req, username, password, done) => {
       try {
-        const user = await UserModel.findOne({ username });
+        const user = await AuthModel.findOne({ username });
 
         if (!user) {
           return done(null, false, { message: "User not found" });
