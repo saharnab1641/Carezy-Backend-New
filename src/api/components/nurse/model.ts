@@ -11,39 +11,42 @@ export interface INurse extends Document {
   authId: String;
 }
 
-export const NurseSchema: Schema<INurse> = new Schema({
-  firstname: {
-    type: String,
-    required: true,
+export const NurseSchema: Schema<INurse> = new Schema<INurse>(
+  {
+    firstname: {
+      type: String,
+      required: true,
+    },
+    lastname: {
+      type: String,
+      required: true,
+    },
+    gender: {
+      type: String,
+      required: true,
+    },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    contact: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    authId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
   },
-  lastname: {
-    type: String,
-    required: true,
-  },
-  gender: {
-    type: String,
-    required: true,
-  },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  contact: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  authId: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-});
+  { timestamps: true }
+);
 
 export const NurseModel: Model<INurse> = model("nurse", NurseSchema);
