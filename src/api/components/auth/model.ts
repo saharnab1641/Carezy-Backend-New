@@ -11,37 +11,40 @@ export interface IAuth extends Document {
   role: String;
 }
 
-export const AuthSchema: Schema<IAuth> = new Schema({
-  firstname: {
-    type: String,
-    required: true,
+export const AuthSchema: Schema<IAuth> = new Schema<IAuth>(
+  {
+    firstname: {
+      type: String,
+      required: true,
+    },
+    lastname: {
+      type: String,
+      required: true,
+    },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    contact: {
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    role: {
+      type: String,
+      required: true,
+    },
   },
-  lastname: {
-    type: String,
-    required: true,
-  },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  contact: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  role: {
-    type: String,
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 AuthSchema.pre("save", async function (next: Function) {
   const user: IAuth = this;
