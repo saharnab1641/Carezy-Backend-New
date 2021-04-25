@@ -7,6 +7,8 @@ export const env = {
   JWT_ISSUER: process.env.JWT_ISSUER,
   GMAIL_USER: process.env.GMAIL_USER,
   GMAIL_PASS: process.env.GMAIL_PASS,
+  RAZORPAY_ID: process.env.RAZORPAY_ID,
+  RAZORPAY_SECRET: process.env.RAZORPAY_SECRET || "secret",
   PATIENT: "patient",
   DOCTOR: "doctor",
   NURSE: "nurse",

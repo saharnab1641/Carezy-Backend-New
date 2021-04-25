@@ -21,14 +21,19 @@ export class AppointmentRoutes
       this.controller.makeAppointment
     );
     this.router.post(
-      "/manageappointment",
+      "/getusedslots",
       // this.authService.isAuthorized(),
-      this.controller.manageAppointment
+      this.controller.getUsedSlots
     );
     this.router.post(
-      "/endConsultation",
+      "/freeappointment",
       // this.authService.isAuthorized(),
-      this.controller.endConsultation
+      this.controller.freeAppointment
+    );
+    this.router.post(
+      "/verifypayment",
+      // this.authService.isAuthorized(),
+      this.controller.verifyPayment
     );
   }
 }

@@ -16,12 +16,16 @@ export enum StatusOptions {
 }
 
 export interface IAppointment extends Document {
+  appointmentDateTime: Date;
   problem: String;
   status: String;
-  patientid: String;
-  doctorid: String;
+  patientUsername: String;
+  doctorUsername: String;
   message: String;
   consultationDetails: IConsultation;
+  DDSHash: String;
+  amount: number;
+  receiptId: String;
 }
 
 export interface IVitals extends Document {
@@ -40,67 +44,101 @@ export interface IConsultation extends Document {
   advice: String;
 }
 
-const VitalsSchema: Schema<IVitals> = new Schema({
-  temperature: {
-    type: Number,
+const VitalsSchema: Schema<IVitals> = new Schema(
+  {
+    temperature: {
+      type: Number,
+    },
+    bloodPressure: {
+      type: Number,
+    },
+    pulseRate: {
+      type: Number,
+    },
+    respiratoryRate: {
+      type: Number,
+    },
+    height: {
+      type: Number,
+    },
+    weight: {
+      type: Number,
+    },
   },
-  bloodPressure: {
-    type: Number,
-  },
-  pulseRate: {
-    type: Number,
-  },
-  respiratoryRate: {
-    type: Number,
-  },
-  height: {
-    type: Number,
-  },
-  weight: {
-    type: Number,
-  },
-});
+  { _id: false }
+);
 
-const ConsultationSchema: Schema<IConsultation> = new Schema({
-  vitals: {
-    type: VitalsSchema,
+const ConsultationSchema: Schema<IConsultation> = new Schema(
+  {
+    vitals: {
+      type: VitalsSchema,
+    },
+    chiefComplaints: {
+      type: String,
+    },
+    diagnosis: {
+      type: String,
+    },
+    advice: {
+      type: String,
+    },
   },
-  chiefComplaints: {
-    type: String,
-  },
-  diagnosis: {
-    type: String,
-  },
-  advice: {
-    type: String,
-  },
-});
+  { _id: false }
+);
 
-export const AppointmentSchema: Schema<IAppointment> = new Schema({
-  problem: {
-    type: String,
-    required: true,
+export const AppointmentSchema: Schema<IAppointment> = new Schema(
+  {
+    appointmentDateTime: {
+      type: Date,
+      required: true,
+    },
+    problem: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      default: "pending",
+    },
+    patientUsername: {
+      type: String,
+      required: true,
+    },
+    doctorUsername: {
+      type: String,
+      required: true,
+    },
+    message: {
+      type: String,
+    },
+    consultationDetails: {
+      type: ConsultationSchema,
+    },
+    DDSHash: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    amount: {
+      type: Number,
+      required: true,
+    },
+    receiptId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
   },
-  status: {
-    type: String,
-    default: "pending",
-  },
-  patientid: {
-    type: String,
-    required: true,
-  },
-  doctorid: {
-    type: String,
-    required: true,
-  },
-  message: {
-    type: String,
-    default: "Pending",
-  },
-  consultationDetails: {
-    type: ConsultationSchema,
-  },
-});
+  { timestamps: true }
+);
+
+AppointmentSchema.index(
+  { createdAt: 1 },
+  {
+    expireAfterSeconds: 20 * 60,
+    partialFilterExpression: { status: "pending" },
+  }
+);
 
 export const AppointmentModel: Model<IAppointment> = model(
   "appointment",
