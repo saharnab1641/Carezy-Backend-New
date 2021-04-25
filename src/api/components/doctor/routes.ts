@@ -13,5 +13,16 @@ export class DoctorRoutes implements IComponentRoutes<DoctorController> {
     this.initRoutes();
   }
 
-  initRoutes(): void {}
+  initRoutes(): void {
+    this.router.post(
+      "/getdoctors",
+      // this.authService.isAuthorized(),
+      this.controller.getDoctors
+    );
+    this.router.post(
+      "/getdoctor",
+      // this.authService.isAuthorized(),
+      this.controller.getDoctor
+    );
+  }
 }
