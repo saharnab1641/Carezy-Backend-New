@@ -28,7 +28,6 @@ export interface IDoctor extends Document {
   fees: String;
   slotDuration: number;
   schedule: ISchedule;
-  appointments: String[];
 }
 
 const VisitTimeSchema: Schema<IVisitTime> = new Schema<IVisitTime>(
@@ -121,9 +120,6 @@ export const DoctorSchema: Schema<IDoctor> = new Schema<IDoctor>(
     schedule: {
       type: ScheduleSchema,
       required: true,
-    },
-    appointments: {
-      type: [String],
     },
   },
   { timestamps: true }

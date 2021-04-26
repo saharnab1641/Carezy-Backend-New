@@ -9,7 +9,6 @@ export interface IPatient extends Document {
   email: String;
   contact: String;
   authId: String;
-  appointments: String[];
 }
 
 export const PatientSchema: Schema<IPatient> = new Schema<IPatient>(
@@ -45,9 +44,6 @@ export const PatientSchema: Schema<IPatient> = new Schema<IPatient>(
       type: String,
       required: true,
       unique: true,
-    },
-    appointments: {
-      type: [String],
     },
   },
   { timestamps: true }
