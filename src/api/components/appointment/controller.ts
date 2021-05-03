@@ -78,7 +78,7 @@ export class AppointmentController {
         amount: appointmentBody.amount,
         DDSHash: SHA1(
           appointmentBody.doctorUsername +
-            appointmentBody.appointmentDay +
+            appointmentBody.appointmentDate +
             appointmentBody.appointmentSlot.hours +
             appointmentBody.appointmentSlot.minutes
         ).toString(),
