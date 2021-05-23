@@ -4,7 +4,8 @@ import { AppointmentController } from "./controller";
 import { AuthService } from "../../../services/auth";
 
 export class AppointmentRoutes
-  implements IComponentRoutes<AppointmentController> {
+  implements IComponentRoutes<AppointmentController>
+{
   readonly controller: AppointmentController = new AppointmentController();
   readonly router: Router = Router();
   authService: AuthService;
@@ -34,6 +35,11 @@ export class AppointmentRoutes
       "/verifypayment",
       // this.authService.isAuthorized(),
       this.controller.verifyPayment
+    );
+    this.router.get(
+      "/getappointments",
+      // this.authService.isAuthorized(),
+      this.controller.getAppointments
     );
   }
 }

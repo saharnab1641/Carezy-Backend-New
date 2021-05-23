@@ -223,4 +223,47 @@ export class AppointmentController {
       return next(err);
     }
   }
+
+  public async getAppointments(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      const filters: any = {};
+      if (req.body.date) {
+        if (!req.body.date.start && !req.body.date.end) {
+          return res.json({ error: "Include start and end date" });
+        }
+
+        const dayStart = new Date(req.body.date.start);
+        dayStart.setHours(0, 0, 0);
+        const dayEnd = new Date(req.body.date.end);
+        dayEnd.setHours(23, 59, 59);
+        filters.appointmentDateTime = {
+          $gte: new Date(dayStart.toISOString()),
+          $lte: new Date(dayEnd.toISOString()),
+        };
+      }
+
+      if (req.body.patientUsername) {
+        filters.patientUsername = req.body.patientUsername;
+      }
+
+      if (req.body.doctorUsername) {
+        filters.doctorUsername = req.body.doctorUsername;
+      }
+
+      if (req.body.status) {
+        filters.status = req.body.status;
+      }
+
+      const appointments = await AppointmentModel.find(filters)
+        .select({ _id: 0, DDSHash: 0, createdAt: 0, updatedAt: 0, __v: 0 })
+        .exec();
+      return res.json({ appointments });
+    } catch (err) {
+      return next(err);
+    }
+  }
 }
