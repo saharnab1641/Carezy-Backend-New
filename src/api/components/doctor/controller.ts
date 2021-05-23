@@ -21,7 +21,6 @@ export class DoctorController {
       const filters: any = {};
       if (req.body.specialization)
         filters.specialization = req.body.specialization;
-      console.log(filters);
       const doctors: Array<IDoctor> = await DoctorModel.find(filters)
         .select({ firstname: 1, lastname: 1, gender: 1, username: 1, _id: 0 })
         .exec();
