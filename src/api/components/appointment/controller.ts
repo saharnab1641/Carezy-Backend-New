@@ -84,6 +84,7 @@ export class AppointmentController {
         ).toString(),
         receiptId: uuidv4(),
         status: "pending",
+        paymentSource: req.body.paymentSource,
       };
 
       const appointment: IAppointment = await AppointmentModel.create(
@@ -259,9 +260,55 @@ export class AppointmentController {
       }
 
       const appointments = await AppointmentModel.find(filters)
-        .select({ _id: 0, DDSHash: 0, createdAt: 0, updatedAt: 0, __v: 0 })
+        .select({ DDSHash: 0, createdAt: 0, updatedAt: 0, __v: 0 })
         .exec();
       return res.json({ appointments });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  public async manageAppointmentStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      const body: any = {
+        status: req.body.status,
+        appointmentId: req.body.appointmentId,
+        receiptId: req.body.receiptId,
+        paymentSource: req.body.paymentSource,
+        message: req.body.message,
+      };
+
+      switch (body.status) {
+        case "inclinic": {
+          await AppointmentModel.updateOne(
+            { _id: body.appointmentId },
+            { status: body.status, message: body.message }
+          );
+          break;
+        }
+        case "rejected": {
+          if (body.paymentSource === "app") {
+            const receipt: IReceipt = await ReceiptModel.findOne({
+              receiptId: body.receiptId,
+            }).exec();
+            await this.payClient.refund(receipt.paymentId);
+          }
+          await ReceiptModel.updateOne(
+            { receiptId: body.receiptId },
+            { status: "refunded" }
+          );
+          await AppointmentModel.updateOne(
+            { _id: body.appointmentId },
+            { status: body.status, message: body.message, DDSHash: uuidv4() }
+          );
+          break;
+        }
+      }
+      return res.json({ message: "Status updated" });
     } catch (err) {
       return next(err);
     }

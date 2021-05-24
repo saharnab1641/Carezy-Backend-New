@@ -26,6 +26,7 @@ export interface IAppointment extends Document {
   DDSHash: String;
   amount: number;
   receiptId: String;
+  paymentSource: String;
 }
 
 export interface IVitals extends Document {
@@ -127,6 +128,11 @@ export const AppointmentSchema: Schema<IAppointment> = new Schema(
       type: String,
       required: true,
       unique: true,
+    },
+    paymentSource: {
+      type: String,
+      enum: ["app", "reception"],
+      required: true,
     },
   },
   { timestamps: true }
