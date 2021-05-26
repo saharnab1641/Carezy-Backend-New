@@ -46,13 +46,22 @@ export class LocalStrategy {
           case env.PATIENT: {
             const resource: any = {
               ...auth,
-              gender: reqResourceBody.gender,
+              ...reqResourceBody,
               authId: newAuth._id,
             };
+            resource.dateOfBirth = new Date(reqResourceBody.dateOfBirth);
+            resource.insurance.expiryDate = new Date(
+              reqResourceBody.insurance.expiryDate
+            );
             user = await PatientModel.create(resource);
             break;
           }
           case env.DOCTOR: {
+            const resource: any = {
+              ...auth,
+              ...reqResourceBody,
+              authId: newAuth._id,
+            };
             const scheduleRaw = reqResourceBody.schedule;
             var schedule: any = {};
             for (const day in scheduleRaw) {
@@ -63,15 +72,7 @@ export class LocalStrategy {
               end.setHours(timeObj.end.hours, timeObj.end.minutes, 0);
               schedule[day] = { start, end };
             }
-            const resource: any = {
-              ...auth,
-              gender: reqResourceBody.gender,
-              specialization: reqResourceBody.specialization,
-              fees: reqResourceBody.fees,
-              slotDuration: reqResourceBody.slotDuration,
-              schedule: schedule,
-              authId: newAuth._id,
-            };
+            resource.schedule = schedule;
             user = await DoctorModel.create(resource);
             break;
           }
