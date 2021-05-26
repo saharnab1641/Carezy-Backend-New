@@ -2,8 +2,8 @@ import { Schema, Document, model, Model } from "mongoose";
 import { hash, compare } from "bcrypt";
 
 export interface INurse extends Document {
-  firstname: String;
-  lastname: String;
+  firstName: String;
+  lastName: String;
   username: String;
   gender: String;
   email: String;
@@ -13,11 +13,11 @@ export interface INurse extends Document {
 
 export const NurseSchema: Schema<INurse> = new Schema<INurse>(
   {
-    firstname: {
+    firstName: {
       type: String,
       required: true,
     },
-    lastname: {
+    lastName: {
       type: String,
       required: true,
     },
