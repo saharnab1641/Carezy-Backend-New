@@ -41,5 +41,15 @@ export class AppointmentRoutes
       // this.authService.isAuthorized(),
       this.controller.getAppointments
     );
+    this.router.get(
+      "/manageappointmentstatus",
+      // this.authService.isAuthorized(),
+      this.controller.manageAppointmentStatus
+    );
+    this.router.get(
+      "/endconsultation",
+      // this.authService.isAuthorized(),
+      this.controller.endConsultation
+    );
   }
 }

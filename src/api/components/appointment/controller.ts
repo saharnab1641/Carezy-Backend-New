@@ -1,12 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { MailService } from "../../../services/mail";
-import {
-  AppointmentModel,
-  IAppointment,
-  IManageAppointment,
-  StatusOptions,
-  IConsultation,
-} from "./model";
+import { AppointmentModel, IAppointment, IConsultation } from "./model";
 import { bind } from "decko";
 import { DoctorModel } from "../doctor/model";
 import { PatientModel } from "../patient/model";
@@ -44,6 +38,7 @@ export class AppointmentController {
           $gte: new Date(dayStart.toISOString()),
           $lte: new Date(dayEnd.toISOString()),
         },
+        status: "approved",
       })
         .sort({ appointmentDateTime: 1 })
         .select({ appointmentDateTime: 1, _id: 0 })
@@ -309,6 +304,22 @@ export class AppointmentController {
         }
       }
       return res.json({ message: "Status updated" });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  public async endConsultation(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      await AppointmentModel.findByIdAndUpdate(req.body.appointmentId, {
+        consultationDetails: req.body.consultationDetails,
+        status: "consulted",
+      });
+      return res.json({ message: "Session saved" });
     } catch (err) {
       return next(err);
     }

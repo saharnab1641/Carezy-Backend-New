@@ -1,20 +1,6 @@
 import { Schema, Document, model, Model } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 
-export interface IManageAppointment {
-  appointmentId: String;
-  status: String;
-  message: String;
-  option: String;
-}
-
-export enum StatusOptions {
-  ACCEPTED = "accepted",
-  REJECTED = "rejected",
-  RESCHEDULED = "rescheduled",
-  CONSULTED = "consulted",
-}
-
 export interface IAppointment extends Document {
   appointmentDateTime: Date;
   problem: String;
@@ -40,12 +26,61 @@ export interface IVitals extends Document {
 
 export interface IConsultation extends Document {
   vitals: IVitals;
-  chiefComplaints: String;
-  diagnosis: String;
-  advice: String;
+  chiefComplaints: String[];
+  examination: String[];
+  diagnosis: String[];
+  advice: String[];
+  investigation: String[];
+  medicine: IMedicine[];
 }
 
-const VitalsSchema: Schema<IVitals> = new Schema(
+export interface IMedicine extends Document {
+  name: String;
+  company: String;
+  timesTakenPerDay: number;
+  duration: number;
+  mealBoolean: boolean;
+  mealCustomInstructions: String;
+  intakeMethod: String;
+  suggestions: String;
+}
+
+const MedicineSchema: Schema<IMedicine> = new Schema<IMedicine>(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    company: {
+      type: String,
+    },
+    timesTakenPerDay: {
+      type: Number,
+      required: true,
+    },
+    duration: {
+      type: Number,
+      required: true,
+    },
+    mealBoolean: {
+      type: Boolean,
+      required: true,
+    },
+    mealCustomInstructions: {
+      type: String,
+    },
+    intakeMethod: {
+      type: String,
+      required: true,
+    },
+    suggestions: {
+      type: String,
+    },
+  },
+  { _id: false }
+);
+
+const VitalsSchema: Schema<IVitals> = new Schema<IVitals>(
   {
     temperature: {
       type: Number,
@@ -69,25 +104,34 @@ const VitalsSchema: Schema<IVitals> = new Schema(
   { _id: false }
 );
 
-const ConsultationSchema: Schema<IConsultation> = new Schema(
+const ConsultationSchema: Schema<IConsultation> = new Schema<IConsultation>(
   {
     vitals: {
       type: VitalsSchema,
     },
     chiefComplaints: {
-      type: String,
+      type: [String],
     },
     diagnosis: {
-      type: String,
+      type: [String],
     },
     advice: {
-      type: String,
+      type: [String],
+    },
+    examination: {
+      type: [String],
+    },
+    investigation: {
+      type: [String],
+    },
+    medicine: {
+      type: [MedicineSchema],
     },
   },
   { _id: false }
 );
 
-export const AppointmentSchema: Schema<IAppointment> = new Schema(
+export const AppointmentSchema: Schema<IAppointment> = new Schema<IAppointment>(
   {
     appointmentDateTime: {
       type: Date,
@@ -100,6 +144,7 @@ export const AppointmentSchema: Schema<IAppointment> = new Schema(
     status: {
       type: String,
       default: "pending",
+      enum: ["pending", "approved", "rejected", "inclinic", "consulted"],
     },
     patientUsername: {
       type: String,
