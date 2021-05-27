@@ -9,13 +9,14 @@ import { env } from "../../config/globals";
 import { AuthService } from "../../services/auth";
 
 export function registerMiddleware(router: Router): void {
+  router.use(cors());
   router.use(helmet());
 
-  if (env.NODE_ENV === "development") {
-    router.use(cors({ origin: "*" }));
-  } else {
-    router.use(cors({ origin: ["http://localhost:4200"] }));
-  }
+  // if (env.NODE_ENV === "development") {
+  //   router.use(cors({ origin: "*" }));
+  // } else {
+  //   router.use(cors({ origin: ["http://localhost:4200"] }));
+  // }
 
   router.use(json());
   router.use(compression());

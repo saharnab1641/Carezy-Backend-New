@@ -16,13 +16,13 @@ import { MongoConnect } from "./db/index";
     const app: express.Application = new Server().app;
     const server: HttpServer = createServer(app);
 
-    server.listen(env.NODE_PORT);
+    server.listen(env.PORT);
 
     mongoConnect.connectToMongo();
 
     server.on("listening", () => {
       logger.info(
-        `Carezy node server is listening on port ${env.NODE_PORT} in ${env.NODE_ENV} mode`
+        `Carezy node server is listening on port ${env.PORT} in ${env.NODE_ENV} mode`
       );
     });
 
