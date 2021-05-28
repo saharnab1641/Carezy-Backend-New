@@ -21,11 +21,23 @@ export class FileTransferService {
     });
   }
 
-  public uploadFile = (folder: String, fileBuffer: Buffer): Promise<String> =>
+  private getFileExtension(fileName: String): String {
+    return "." + fileName.split(".").pop() || "";
+  }
+
+  public uploadFile = (
+    folder: String,
+    fileBuffer: Buffer,
+    fileName: String
+  ): Promise<String> =>
     new Promise((resolve, reject) => {
       const bucket: Bucket = this.storage.bucket(env.GCP_BUCKET);
-      const blob = bucket.file(folder + "/" + uuidv4());
-      const blobStream = blob.createWriteStream({ resumable: false });
+      const blob = bucket.file(
+        folder + "/" + uuidv4() + this.getFileExtension(fileName)
+      );
+      const blobStream = blob.createWriteStream({
+        resumable: false,
+      });
 
       blobStream.on("error", (err) => {
         reject("Unable to upload file, something went wrong");

@@ -313,23 +313,26 @@ export class AppointmentController {
     }
   }
 
+  @bind
   public async endConsultation(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
     try {
+      const consultationDetails: any = { ...req.body.consultationDetails };
       if (req.file) {
         const response = await this.fileTransferService.uploadFile(
           "consultation",
-          req.file.buffer
+          req.file.buffer,
+          req.file.originalname
         );
 
-        req.body.consultationDetails.attachmentName = response;
+        consultationDetails.attachmentName = response;
       }
 
       await AppointmentModel.findByIdAndUpdate(req.body.appointmentId, {
-        consultationDetails: req.body.consultationDetails,
+        consultationDetails,
         status: "consulted",
       });
       return res.json({ message: "Session saved" });
