@@ -1,12 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { MailService } from "../../../services/mail";
-import {
-  AppointmentModel,
-  IAppointment,
-  IManageAppointment,
-  StatusOptions,
-  IConsultation,
-} from "./model";
+import { AppointmentModel, IAppointment, IConsultation } from "./model";
 import { bind } from "decko";
 import { DoctorModel } from "../doctor/model";
 import { PatientModel } from "../patient/model";
@@ -44,6 +38,7 @@ export class AppointmentController {
           $gte: new Date(dayStart.toISOString()),
           $lte: new Date(dayEnd.toISOString()),
         },
+        status: "approved",
       })
         .sort({ appointmentDateTime: 1 })
         .select({ appointmentDateTime: 1, _id: 0 })
@@ -84,6 +79,7 @@ export class AppointmentController {
         ).toString(),
         receiptId: uuidv4(),
         status: "pending",
+        paymentSource: req.body.paymentSource,
       };
 
       const appointment: IAppointment = await AppointmentModel.create(
@@ -219,6 +215,111 @@ export class AppointmentController {
           res.json({ message: "Include valid payment source" });
         }
       }
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  public async getAppointments(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      const filters: any = {};
+      if (req.body.date) {
+        if (!req.body.date.start && !req.body.date.end) {
+          return res.json({ error: "Include start and end date" });
+        }
+
+        const dayStart = new Date(req.body.date.start);
+        dayStart.setHours(0, 0, 0);
+        const dayEnd = new Date(req.body.date.end);
+        dayEnd.setHours(23, 59, 59);
+        filters.appointmentDateTime = {
+          $gte: new Date(dayStart.toISOString()),
+          $lte: new Date(dayEnd.toISOString()),
+        };
+      }
+
+      if (req.body.patientUsername) {
+        filters.patientUsername = req.body.patientUsername;
+      }
+
+      if (req.body.doctorUsername) {
+        filters.doctorUsername = req.body.doctorUsername;
+      }
+
+      if (req.body.status) {
+        filters.status = req.body.status;
+      }
+
+      const appointments = await AppointmentModel.find(filters)
+        .select({ DDSHash: 0, createdAt: 0, updatedAt: 0, __v: 0 })
+        .exec();
+      return res.json({ appointments });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  public async manageAppointmentStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      const body: any = {
+        status: req.body.status,
+        appointmentId: req.body.appointmentId,
+        receiptId: req.body.receiptId,
+        paymentSource: req.body.paymentSource,
+        message: req.body.message,
+      };
+
+      switch (body.status) {
+        case "inclinic": {
+          await AppointmentModel.updateOne(
+            { _id: body.appointmentId },
+            { status: body.status, message: body.message }
+          );
+          break;
+        }
+        case "rejected": {
+          if (body.paymentSource === "app") {
+            const receipt: IReceipt = await ReceiptModel.findOne({
+              receiptId: body.receiptId,
+            }).exec();
+            await this.payClient.refund(receipt.paymentId);
+          }
+          await ReceiptModel.updateOne(
+            { receiptId: body.receiptId },
+            { status: "refunded" }
+          );
+          await AppointmentModel.updateOne(
+            { _id: body.appointmentId },
+            { status: body.status, message: body.message, DDSHash: uuidv4() }
+          );
+          break;
+        }
+      }
+      return res.json({ message: "Status updated" });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  public async endConsultation(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      await AppointmentModel.findByIdAndUpdate(req.body.appointmentId, {
+        consultationDetails: req.body.consultationDetails,
+        status: "consulted",
+      });
+      return res.json({ message: "Session saved" });
     } catch (err) {
       return next(err);
     }

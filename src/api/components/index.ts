@@ -17,4 +17,5 @@ export function registerApiRoutes(router: Router, prefix: string = ""): void {
   router.use(`${prefix}/auth`, new AuthRoutes().router);
   router.use(`${prefix}/appointment`, new AppointmentRoutes().router);
   router.use(`${prefix}/doctor`, new DoctorRoutes().router);
+  router.use(`${prefix}/patient`, new PatientRoutes().router);
 }

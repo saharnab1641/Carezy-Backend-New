@@ -17,8 +17,8 @@ export interface ISchedule extends Document {
 }
 
 export interface IDoctor extends Document {
-  firstname: String;
-  lastname: String;
+  firstName: String;
+  lastName: String;
   gender: String;
   username: String;
   email: String;
@@ -73,11 +73,11 @@ const ScheduleSchema: Schema<ISchedule> = new Schema<ISchedule>(
 
 export const DoctorSchema: Schema<IDoctor> = new Schema<IDoctor>(
   {
-    firstname: {
+    firstName: {
       type: String,
       required: true,
     },
-    lastname: {
+    lastName: {
       type: String,
       required: true,
     },

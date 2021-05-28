@@ -2,8 +2,8 @@ import { Schema, Document, model, Model } from "mongoose";
 import { hash, compare } from "bcrypt";
 
 export interface IAuth extends Document {
-  firstname: String;
-  lastname: String;
+  firstName: String;
+  lastName: String;
   username: String;
   email: String;
   contact: String;
@@ -13,11 +13,11 @@ export interface IAuth extends Document {
 
 export const AuthSchema: Schema<IAuth> = new Schema<IAuth>(
   {
-    firstname: {
+    firstName: {
       type: String,
       required: true,
     },
-    lastname: {
+    lastName: {
       type: String,
       required: true,
     },
