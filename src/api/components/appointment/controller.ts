@@ -4,22 +4,22 @@ import { AppointmentModel, IAppointment, IConsultation } from "./model";
 import { bind } from "decko";
 import { DoctorModel } from "../doctor/model";
 import { PatientModel } from "../patient/model";
-import { SHA1, HmacSHA256 } from "crypto-js";
+import { SHA1 } from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
-import RazorPay from "razorpay";
 import { env } from "../../../config/globals";
 import { IReceipt, ReceiptModel } from "../receipt/model";
+import { FileTransferService } from "../../../services/file-transfer";
+import { PaymentService } from "../../../services/payment";
 
 export class AppointmentController {
   readonly mailService: MailService;
-  readonly payClient: any;
+  readonly paymentService: PaymentService;
+  private fileTransferService: FileTransferService;
 
   constructor() {
     this.mailService = new MailService();
-    this.payClient = new RazorPay({
-      key_id: env.RAZORPAY_ID,
-      key_secret: env.RAZORPAY_SECRET,
-    });
+    this.fileTransferService = new FileTransferService();
+    this.paymentService = new PaymentService();
   }
 
   public async getUsedSlots(
@@ -93,7 +93,7 @@ export class AppointmentController {
             currency: "INR",
             receipt: appointment.receiptId,
           };
-          const order = await this.payClient.orders.create(params);
+          const order = await this.paymentService.createOrder(params);
 
           const newReceipt: Partial<IReceipt> = {
             paymentSource: "app",
@@ -168,14 +168,18 @@ export class AppointmentController {
             signature: req.body.paymentDetails.razorpay_signature,
           };
 
-          const body = paymentDetails.orderId + "|" + paymentDetails.paymentId;
-          const signature = HmacSHA256(body, env.RAZORPAY_SECRET).toString();
-          if (signature === paymentDetails.signature) {
+          if (
+            this.paymentService.verifyPayment(
+              paymentDetails.orderId,
+              paymentDetails.paymentId,
+              paymentDetails.signature
+            )
+          ) {
             const receipt: IReceipt = await ReceiptModel.updateOne(
               { orderId: paymentDetails.orderId },
               {
                 paymentId: paymentDetails.orderId,
-                signature: signature,
+                signature: paymentDetails.signature,
                 status: "paid",
               },
               { new: true }
@@ -290,7 +294,7 @@ export class AppointmentController {
             const receipt: IReceipt = await ReceiptModel.findOne({
               receiptId: body.receiptId,
             }).exec();
-            await this.payClient.refund(receipt.paymentId);
+            await this.paymentService.refund(receipt.paymentId);
           }
           await ReceiptModel.updateOne(
             { receiptId: body.receiptId },
@@ -315,6 +319,17 @@ export class AppointmentController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
+      if (!req.file) {
+        res.json({ error: "No file uploaded." });
+      }
+
+      const response = await this.fileTransferService.uploadFile(
+        "consultation",
+        req.file.buffer
+      );
+
+      req.body.consultationDetails.attachmentName = response;
+
       await AppointmentModel.findByIdAndUpdate(req.body.appointmentId, {
         consultationDetails: req.body.consultationDetails,
         status: "consulted",

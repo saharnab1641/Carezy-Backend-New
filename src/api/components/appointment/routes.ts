@@ -2,16 +2,19 @@ import { Router } from "express";
 import { IComponentRoutes } from "../index";
 import { AppointmentController } from "./controller";
 import { AuthService } from "../../../services/auth";
+import { FileTransferService } from "../../../services/file-transfer";
 
 export class AppointmentRoutes
   implements IComponentRoutes<AppointmentController>
 {
   readonly controller: AppointmentController = new AppointmentController();
   readonly router: Router = Router();
-  authService: AuthService;
+  private authService: AuthService;
+  private fileTransferService: FileTransferService;
 
   public constructor() {
     this.authService = new AuthService();
+    this.fileTransferService = new FileTransferService();
     this.initRoutes();
   }
 
@@ -49,6 +52,7 @@ export class AppointmentRoutes
     this.router.get(
       "/endconsultation",
       // this.authService.isAuthorized(),
+      this.fileTransferService.multer.single("file"),
       this.controller.endConsultation
     );
   }
