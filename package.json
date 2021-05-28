@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/saharnab1641/Carezy-Backend-New#readme",
   "dependencies": {
+    "@google-cloud/storage": "^5.8.5",
     "accesscontrol": "^2.2.1",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
@@ -37,6 +38,7 @@
     "helmet": "^4.4.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.11.14",
+    "multer": "^1.4.2",
     "nodemailer": "^6.5.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
@@ -54,6 +56,7 @@
     "@types/fhir": "^3.0.2",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/mongoose": "^5.10.3",
+    "@types/multer": "^1.4.5",
     "@types/nodemailer": "^6.4.1",
     "@types/passport": "^1.0.5",
     "@types/passport-jwt": "^3.0.4",

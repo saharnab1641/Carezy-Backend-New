@@ -9,6 +9,8 @@ export const env = {
   GMAIL_PASS: process.env.GMAIL_PASS,
   RAZORPAY_ID: process.env.RAZORPAY_ID,
   RAZORPAY_SECRET: process.env.RAZORPAY_SECRET || "secret",
+  GCP_KEYFILE: process.env.GCP_KEYFILE || "keyfileJSONstring",
+  GCP_BUCKET: process.env.GCP_BUCKET || "bucket",
   PATIENT: "patient",
   DOCTOR: "doctor",
   NURSE: "nurse",
