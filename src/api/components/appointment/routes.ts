@@ -49,7 +49,7 @@ export class AppointmentRoutes
       // this.authService.isAuthorized(),
       this.controller.manageAppointmentStatus
     );
-    this.router.get(
+    this.router.post(
       "/endconsultation",
       // this.authService.isAuthorized(),
       this.fileTransferService.multer.single("file"),

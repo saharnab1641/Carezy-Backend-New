@@ -319,16 +319,14 @@ export class AppointmentController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      if (!req.file) {
-        res.json({ error: "No file uploaded." });
+      if (req.file) {
+        const response = await this.fileTransferService.uploadFile(
+          "consultation",
+          req.file.buffer
+        );
+
+        req.body.consultationDetails.attachmentName = response;
       }
-
-      const response = await this.fileTransferService.uploadFile(
-        "consultation",
-        req.file.buffer
-      );
-
-      req.body.consultationDetails.attachmentName = response;
 
       await AppointmentModel.findByIdAndUpdate(req.body.appointmentId, {
         consultationDetails: req.body.consultationDetails,
