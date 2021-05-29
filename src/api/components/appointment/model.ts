@@ -32,6 +32,7 @@ export interface IConsultation extends Document {
   advice: String[];
   investigation: String[];
   medicine: IMedicine[];
+  attachmentName: String;
 }
 
 export interface IMedicine extends Document {
@@ -126,6 +127,9 @@ const ConsultationSchema: Schema<IConsultation> = new Schema<IConsultation>(
     },
     medicine: {
       type: [MedicineSchema],
+    },
+    attachmentName: {
+      type: String,
     },
   },
   { _id: false }
