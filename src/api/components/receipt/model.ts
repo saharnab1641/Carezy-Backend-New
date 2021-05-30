@@ -34,8 +34,6 @@ export const ReceiptSchema: Schema<IReceipt> = new Schema<IReceipt>(
     },
     orderId: {
       type: String,
-      required: true,
-      unique: true,
     },
     receiptId: {
       type: String,
