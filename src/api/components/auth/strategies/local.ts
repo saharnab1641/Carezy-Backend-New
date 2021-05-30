@@ -13,6 +13,7 @@ import {
 } from "../../doctor/model";
 import { AuthModel, IAuth } from "../model";
 import { NurseModel } from "../../nurse/model";
+import { LaboratoryModel } from "../../laboratory/model";
 
 export class LocalStrategy {
   public signUpStrategy: Strategy = new Strategy(
@@ -76,15 +77,24 @@ export class LocalStrategy {
             user = await DoctorModel.create(resource);
             break;
           }
-          // case env.NURSE: {
-          //   const resource: any = {
-          //     ...auth,
-          //     ...reqResourceBody,
-          //     authId: newAuth._id,
-          //   };
-          //   user = await NurseModel.create(resource);
-          //   break;
-          // }
+          case env.NURSE: {
+            const resource: any = {
+              ...auth,
+              ...reqResourceBody,
+              authId: newAuth._id,
+            };
+            user = await NurseModel.create(resource);
+            break;
+          }
+          case env.LABORATORY: {
+            const resource: any = {
+              ...auth,
+              ...reqResourceBody,
+              authId: newAuth._id,
+            };
+            user = await LaboratoryModel.create(resource);
+            break;
+          }
         }
 
         mailService.sendMail(
