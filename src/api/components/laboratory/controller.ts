@@ -120,14 +120,14 @@ export class LaboratoryController {
           body.signature
         )
       ) {
-        res.json({ error: "Payment not verified." });
+        return res.json({ error: "Payment not verified." });
       }
 
       const reportArray = new Array();
 
       for (const investigation in body.investigations) {
         reportArray.push({
-          investigation: investigation,
+          investigation: body.investigations[investigation],
           status: "approved",
           appointmentId: body.appointmentId,
           patientUsername: body.patientUsername,
@@ -248,7 +248,7 @@ export class LaboratoryController {
     try {
       const body = {
         reportId: req.body.reportId,
-        scheduledDate: req.body.scheduled,
+        scheduledDate: req.body.scheduledDate,
         scheduledTime: req.body.scheduledTime,
         instructions: req.body.instructions,
       };

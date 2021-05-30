@@ -39,7 +39,7 @@ export class LaboratoryRoutes
       // this.authService.isAuthorized(),
       this.controller.verifyReportPayment
     );
-    this.router.post(
+    this.router.get(
       "/getreports",
       // this.authService.isAuthorized(),
       this.controller.getReports
