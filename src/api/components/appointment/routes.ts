@@ -50,10 +50,20 @@ export class AppointmentRoutes
       this.controller.manageAppointmentStatus
     );
     this.router.post(
+      "/setvitals",
+      // this.authService.isAuthorized(),
+      this.controller.setVitals
+    );
+    this.router.post(
       "/endconsultation",
       // this.authService.isAuthorized(),
       this.fileTransferService.multer.single("file"),
       this.controller.endConsultation
+    );
+    this.router.get(
+      "/downloadconsultation",
+      // this.authService.isAuthorized(),
+      this.controller.downloadConsultation
     );
   }
 }
