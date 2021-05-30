@@ -16,4 +16,5 @@ export const env = {
   NURSE: "nurse",
   RECEPTION: "reception",
   HOSPITAL: "hospital",
+  LABORATORY: "laboratory",
 };
