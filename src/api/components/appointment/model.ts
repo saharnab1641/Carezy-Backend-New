@@ -7,6 +7,7 @@ export interface IAppointment extends Document {
   status: String;
   patientUsername: String;
   doctorUsername: String;
+  nurseUsername: String;
   message: String;
   consultationDetails: IConsultation;
   DDSHash: String;
@@ -16,12 +17,12 @@ export interface IAppointment extends Document {
 }
 
 export interface IVitals extends Document {
-  temperature: Number;
-  bloodPressure: Number;
-  pulseRate: Number;
-  respiratoryRate: Number;
-  height: Number;
-  weight: Number;
+  temperature: number;
+  bloodPressure: number;
+  pulseRate: number;
+  respiratoryRate: number;
+  height: number;
+  weight: number;
 }
 
 export interface IConsultation extends Document {
@@ -73,6 +74,7 @@ const MedicineSchema: Schema<IMedicine> = new Schema<IMedicine>(
     intakeMethod: {
       type: String,
       required: true,
+      enum: ["oral", "intravenous", "intramuscular"],
     },
     suggestions: {
       type: String,
@@ -157,6 +159,9 @@ export const AppointmentSchema: Schema<IAppointment> = new Schema<IAppointment>(
     doctorUsername: {
       type: String,
       required: true,
+    },
+    nurseUsername: {
+      type: String,
     },
     message: {
       type: String,

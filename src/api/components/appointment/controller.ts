@@ -97,7 +97,7 @@ export class AppointmentController {
 
           const newReceipt: Partial<IReceipt> = {
             paymentSource: "app",
-            resourceId: appointment._id,
+            resourceId: [appointment._id],
             receiptFor: "appointment",
             orderId: order.id,
             receiptId: order.receipt,
@@ -178,7 +178,7 @@ export class AppointmentController {
             const receipt: IReceipt = await ReceiptModel.updateOne(
               { orderId: paymentDetails.orderId },
               {
-                paymentId: paymentDetails.orderId,
+                paymentId: paymentDetails.paymentId,
                 signature: paymentDetails.signature,
                 status: "paid",
               },
@@ -283,10 +283,10 @@ export class AppointmentController {
 
       switch (body.status) {
         case "inclinic": {
-          await AppointmentModel.updateOne(
-            { _id: body.appointmentId },
-            { status: body.status, message: body.message }
-          );
+          await AppointmentModel.findByIdAndUpdate(body.appointmentId, {
+            status: body.status,
+            message: body.message,
+          });
           break;
         }
         case "rejected": {
@@ -336,6 +336,50 @@ export class AppointmentController {
         status: "consulted",
       });
       return res.json({ message: "Session saved" });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  public async setVitals(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      const body: any = {
+        nurseUsername: req.body.nurseUsername,
+        appointmentId: req.body.appointmentId,
+        vitals: req.body.vitals,
+      };
+
+      await AppointmentModel.findByIdAndUpdate(body.appointmentId, {
+        nurseUsername: body.nurseUsername,
+        $set: { "consultationDetails.vitals": body.vitals },
+      });
+
+      return res.json({ message: "Vitals set" });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  @bind
+  public async downloadConsultation(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      const body = {
+        fileName: req.body.fileName,
+      };
+
+      await this.fileTransferService.downloadFile(
+        body.fileName,
+        "Consultation",
+        res
+      );
     } catch (err) {
       return next(err);
     }

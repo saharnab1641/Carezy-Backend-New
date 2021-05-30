@@ -3,6 +3,7 @@ import { AppointmentRoutes } from "./appointment/routes";
 
 import { AuthRoutes } from "./auth/routes";
 import { DoctorRoutes } from "./doctor/routes";
+import { LaboratoryRoutes } from "./laboratory/routes";
 import { PatientRoutes } from "./patient/routes";
 
 export interface IComponentRoutes<T> {
@@ -18,4 +19,5 @@ export function registerApiRoutes(router: Router, prefix: string = ""): void {
   router.use(`${prefix}/appointment`, new AppointmentRoutes().router);
   router.use(`${prefix}/doctor`, new DoctorRoutes().router);
   router.use(`${prefix}/patient`, new PatientRoutes().router);
+  router.use(`${prefix}/laboratory`, new LaboratoryRoutes().router);
 }

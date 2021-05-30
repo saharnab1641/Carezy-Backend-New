@@ -126,3 +126,30 @@ export const DoctorSchema: Schema<IDoctor> = new Schema<IDoctor>(
 );
 
 export const DoctorModel: Model<IDoctor> = model("doctor", DoctorSchema);
+
+export interface ISpecialization extends Document {
+  name: String;
+  code: String;
+  description: String;
+}
+
+export const SpecializationSchema: Schema<ISpecialization> =
+  new Schema<ISpecialization>({
+    name: {
+      type: String,
+      required: true,
+    },
+    code: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    description: {
+      type: String,
+    },
+  });
+
+export const SpecializationModel: Model<ISpecialization> = model(
+  "specialization",
+  SpecializationSchema
+);
