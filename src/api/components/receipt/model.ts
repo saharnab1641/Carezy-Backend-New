@@ -2,7 +2,7 @@ import { Schema, Document, model, Model } from "mongoose";
 import { hash, compare } from "bcrypt";
 
 export interface IReceipt extends Document {
-  resourceId: String;
+  resourceId: String[];
   receiptFor: String;
   paymentSource: String;
   paymentRemarks: String;
@@ -18,9 +18,7 @@ export interface IReceipt extends Document {
 export const ReceiptSchema: Schema<IReceipt> = new Schema<IReceipt>(
   {
     resourceId: {
-      type: String,
-      required: true,
-      unique: true,
+      type: [String],
     },
     receiptFor: {
       type: String,
@@ -36,6 +34,8 @@ export const ReceiptSchema: Schema<IReceipt> = new Schema<IReceipt>(
     },
     orderId: {
       type: String,
+      required: true,
+      unique: true,
     },
     receiptId: {
       type: String,
