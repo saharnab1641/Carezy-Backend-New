@@ -4,6 +4,9 @@ import { Bucket, Storage } from "@google-cloud/storage";
 import { join } from "path";
 import { env } from "../config/globals";
 import { v4 as uuidv4 } from "uuid";
+import { createWriteStream } from "fs";
+import { Response } from "express";
+import { lookup } from "mime-types";
 
 export class FileTransferService {
   public multer: Multer;
@@ -50,6 +53,31 @@ export class FileTransferService {
       blobStream.end(fileBuffer);
     });
 
-  public readFile = (file: String): Promise<String> =>
-    new Promise((resolve, reject) => {});
+  public downloadFile = (
+    fileName: String,
+    newName: String,
+    res: Response
+  ): Promise<String> =>
+    new Promise((resolve, reject) => {
+      res.writeHead(200, {
+        "Content-Disposition": `attachment; filename="${
+          newName.toString() + this.getFileExtension(fileName)
+        }"`,
+        "Content-Type": lookup(
+          this.getFileExtension(fileName).toString()
+        ).toString(),
+      });
+      const bucket: Bucket = this.storage.bucket(env.GCP_BUCKET);
+      const blob = bucket.file(fileName.toString());
+      const blobStream = blob.createReadStream();
+
+      blobStream
+        .on("error", () => {
+          reject("Unable to upload file, something went wrong");
+        })
+        .on("end", () => {
+          resolve("Downloaded");
+        })
+        .pipe(res);
+    });
 }
