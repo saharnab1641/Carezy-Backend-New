@@ -50,7 +50,7 @@ export class LaboratoryController {
   ): Promise<Response | void> {
     try {
       const investigations: Array<IInvestigation> =
-        await InvestigationModel.find({}).select({ _id: 0, __v: 0 }).exec();
+        await InvestigationModel.find({}).select({ _id: 0 }).exec();
       return res.json(investigations);
     } catch (err) {
       return next(err);
@@ -232,7 +232,7 @@ export class LaboratoryController {
       }
 
       const reports = await LabReportModel.find(filters)
-        .select({ createdAt: 0, updatedAt: 0, __v: 0 })
+        .select({ createdAt: 0, updatedAt: 0 })
         .exec();
       return res.json(reports);
     } catch (err) {
