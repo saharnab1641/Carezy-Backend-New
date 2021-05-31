@@ -91,7 +91,6 @@ const GuardianSchema: Schema<IGuardian> = new Schema<IGuardian>(
     contact: {
       type: String,
       required: true,
-      unique: true,
     },
     contactAlternate: {
       type: String,
