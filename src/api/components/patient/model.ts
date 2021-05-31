@@ -170,7 +170,6 @@ export const PatientSchema: Schema<IPatient> = new Schema<IPatient>(
     },
     bloodGroup: {
       type: String,
-      required: true,
     },
     personalHistory: {
       type: [String],
