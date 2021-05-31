@@ -44,7 +44,7 @@ export class AppointmentRoutes
       // this.authService.isAuthorized(),
       this.controller.getAppointments
     );
-    this.router.get(
+    this.router.post(
       "/manageappointmentstatus",
       // this.authService.isAuthorized(),
       this.controller.manageAppointmentStatus
