@@ -4,6 +4,7 @@ import { authenticate, use } from "passport";
 
 import { LocalStrategy } from "../api/components/auth/strategies/local";
 import { JWTStrategy } from "../api/components/auth/strategies/jwt";
+import { env } from "../config/globals";
 
 export class AuthService {
   private jwtStrategy: JWTStrategy;
@@ -21,11 +22,7 @@ export class AuthService {
   }
 
   public createToken(user: Object): string {
-    return sign(
-      { user },
-      this.jwtStrategy.strategyOptions.secretOrKey as string,
-      this.jwtStrategy.signOptions
-    );
+    return sign({ user }, env.JWT_SECRET, this.jwtStrategy.signOptions);
   }
 
   public isAuthorized(): Handler {
