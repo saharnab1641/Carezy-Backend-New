@@ -18,7 +18,7 @@ export interface IAppointment extends Document {
 
 export interface IVitals extends Document {
   temperature: number;
-  bloodPressure: number;
+  bloodPressure: String;
   pulseRate: number;
   spO2: number;
   height: number;
