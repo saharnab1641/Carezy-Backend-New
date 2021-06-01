@@ -17,4 +17,6 @@ export const env = {
   RECEPTION: "reception",
   HOSPITAL: "hospital",
   LABORATORY: "laboratory",
+  ADMIN: "admin",
+  ALLOWEDIMAGETYPES: ["image/jpeg", "image/jpg", "image/png"],
 };

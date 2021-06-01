@@ -30,13 +30,19 @@ export class FileTransferService {
 
   public uploadFile = (
     folder: String,
-    fileBuffer: Buffer,
-    fileName: String
+    file: Express.Multer.File,
+    privacy: boolean,
+    allowedMimeTypes: Array<String> = []
   ): Promise<String> =>
     new Promise((resolve, reject) => {
+      if (allowedMimeTypes.length != 0) {
+        if (!allowedMimeTypes.includes(file.mimetype)) {
+          reject("File type not allowed");
+        }
+      }
       const bucket: Bucket = this.storage.bucket(env.GCP_BUCKET);
       const blob = bucket.file(
-        folder + "/" + uuidv4() + this.getFileExtension(fileName)
+        folder + "/" + uuidv4() + this.getFileExtension(file.originalname)
       );
       const blobStream = blob.createWriteStream({
         resumable: false,
@@ -46,11 +52,16 @@ export class FileTransferService {
         reject("Unable to upload file, something went wrong");
       });
 
-      blobStream.on("finish", () => {
-        resolve(blob.name);
+      blobStream.on("finish", async () => {
+        if (!privacy) {
+          await blob.makePublic();
+          resolve(blob.publicUrl());
+        } else {
+          resolve(blob.name);
+        }
       });
 
-      blobStream.end(fileBuffer);
+      blobStream.end(file.buffer);
     });
 
   public downloadFile = (

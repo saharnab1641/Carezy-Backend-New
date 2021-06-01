@@ -324,8 +324,8 @@ export class AppointmentController {
       if (req.file) {
         const response = await this.fileTransferService.uploadFile(
           "consultation",
-          req.file.buffer,
-          req.file.originalname
+          req.file,
+          true
         );
 
         consultationDetails.attachmentName = response;
