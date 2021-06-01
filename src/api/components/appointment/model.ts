@@ -89,7 +89,7 @@ const VitalsSchema: Schema<IVitals> = new Schema<IVitals>(
       type: Number,
     },
     bloodPressure: {
-      type: Number,
+      type: String,
     },
     pulseRate: {
       type: Number,
