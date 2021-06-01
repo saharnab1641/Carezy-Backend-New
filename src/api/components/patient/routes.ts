@@ -14,10 +14,15 @@ export class PatientRoutes implements IComponentRoutes<PatientController> {
   }
 
   initRoutes(): void {
-    this.router.get(
+    this.router.post(
       "/getpatient",
       // this.authService.isAuthorized(),
       this.controller.getPatient
+    );
+    this.router.post(
+      "/fillpatientinfo",
+      // this.authService.isAuthorized(),
+      this.controller.fillPatientInfo
     );
   }
 }

@@ -39,10 +39,25 @@ export class PatientController {
       const patient: IPatient = await PatientModel.findOne({
         username: patientUsername,
       })
-        .select({ _id: 0, authId: 0, __v: 0 })
+        .select({ _id: 0, authId: 0 })
         .exec();
-      res;
       return res.json(patient);
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  public async fillPatientInfo(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      await PatientModel.updateOne(
+        { username: req.body.patientUsername },
+        req.body.patientInfo
+      );
+      return res.json({ message: "Details updated" });
     } catch (err) {
       return next(err);
     }

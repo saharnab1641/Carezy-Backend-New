@@ -43,7 +43,7 @@ export class DoctorController {
   ): Promise<Response | void> {
     try {
       const specializations: Array<ISpecialization> =
-        await SpecializationModel.find({}).select({ _id: 0, __v: 0 }).exec();
+        await SpecializationModel.find({}).select({ _id: 0 }).exec();
       return res.json(specializations);
     } catch (err) {
       return next(err);
@@ -66,7 +66,6 @@ export class DoctorController {
           gender: 1,
           username: 1,
           _id: 0,
-          __v: 0,
         })
         .exec();
       return res.json({ doctors });
@@ -86,7 +85,7 @@ export class DoctorController {
       const doctor: IDoctor = await DoctorModel.findOne({
         username: doctorUsername,
       })
-        .select({ _id: 0, authId: 0, appointments: 0, __v: 0 })
+        .select({ _id: 0, authId: 0, appointments: 0 })
         .exec();
       res;
       return res.json(doctor);

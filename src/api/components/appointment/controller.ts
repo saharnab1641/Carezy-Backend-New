@@ -320,7 +320,7 @@ export class AppointmentController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      const consultationDetails: any = { ...req.body.consultationDetails };
+      const { appointmentId, ...consultationDetails }: any = { ...req.body };
       if (req.file) {
         const response = await this.fileTransferService.uploadFile(
           "consultation",
@@ -331,8 +331,14 @@ export class AppointmentController {
         consultationDetails.attachmentName = response;
       }
 
+      const setFields: any = {};
+
+      for (const field in consultationDetails) {
+        setFields["consultationDetails." + field] = consultationDetails[field];
+      }
+
       await AppointmentModel.findByIdAndUpdate(req.body.appointmentId, {
-        consultationDetails,
+        $set: { ...setFields },
         status: "consulted",
       });
       return res.json({ message: "Session saved" });

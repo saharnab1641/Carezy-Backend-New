@@ -91,7 +91,6 @@ const GuardianSchema: Schema<IGuardian> = new Schema<IGuardian>(
     contact: {
       type: String,
       required: true,
-      unique: true,
     },
     contactAlternate: {
       type: String,
@@ -170,7 +169,6 @@ export const PatientSchema: Schema<IPatient> = new Schema<IPatient>(
     },
     bloodGroup: {
       type: String,
-      required: true,
     },
     personalHistory: {
       type: [String],

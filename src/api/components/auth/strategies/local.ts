@@ -50,10 +50,12 @@ export class LocalStrategy {
               ...reqResourceBody,
               authId: newAuth._id,
             };
+            if (resource.insurance) {
+              resource.insurance.expiryDate = new Date(
+                reqResourceBody.insurance.expiryDate
+              );
+            }
             resource.dateOfBirth = new Date(reqResourceBody.dateOfBirth);
-            resource.insurance.expiryDate = new Date(
-              reqResourceBody.insurance.expiryDate
-            );
             user = await PatientModel.create(resource);
             break;
           }
