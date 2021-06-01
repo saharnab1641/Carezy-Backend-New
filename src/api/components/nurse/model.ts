@@ -8,7 +8,6 @@ export interface INurse extends Document {
   gender: String;
   email: String;
   contact: String;
-  authId: String;
 }
 
 export const NurseSchema: Schema<INurse> = new Schema<INurse>(
@@ -36,11 +35,6 @@ export const NurseSchema: Schema<INurse> = new Schema<INurse>(
       unique: true,
     },
     contact: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    authId: {
       type: String,
       required: true,
       unique: true,

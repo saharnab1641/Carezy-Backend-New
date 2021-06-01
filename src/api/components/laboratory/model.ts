@@ -8,7 +8,6 @@ export interface ILaboratory extends Document {
   gender: String;
   email: String;
   contact: String;
-  authId: String;
 }
 
 export const LaboratorySchema: Schema<ILaboratory> = new Schema<ILaboratory>(
@@ -36,11 +35,6 @@ export const LaboratorySchema: Schema<ILaboratory> = new Schema<ILaboratory>(
       unique: true,
     },
     contact: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    authId: {
       type: String,
       required: true,
       unique: true,
