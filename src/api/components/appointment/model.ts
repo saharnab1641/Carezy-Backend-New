@@ -20,7 +20,7 @@ export interface IVitals extends Document {
   temperature: number;
   bloodPressure: number;
   pulseRate: number;
-  respiratoryRate: number;
+  spO2: number;
   height: number;
   weight: number;
 }
@@ -94,7 +94,7 @@ const VitalsSchema: Schema<IVitals> = new Schema<IVitals>(
     pulseRate: {
       type: Number,
     },
-    respiratoryRate: {
+    spO2: {
       type: Number,
     },
     height: {
