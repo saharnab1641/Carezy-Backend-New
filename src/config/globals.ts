@@ -2,7 +2,14 @@ export const env = {
   NODE_ENV: process.env.NODE_ENV || "development",
   PORT: process.env.NODE_PORT || process.env.PORT || 3000,
   MONGODB_URI: process.env.MONGODB_URI || "mongodb://localhost:27017/test",
-  JWT_SECRET: process.env.JWT_SECRET || "RANDOM_STRING",
+  JWT_RSA_PRIVATE_KEY: Buffer.from(
+    process.env.JWT_RSA_PRIVATE_KEY_BASE64 || "RSAPRIVATEKEYINBASE64",
+    "base64"
+  ).toString("utf8"),
+  JWT_RSA_PUBLIC_KEY: Buffer.from(
+    process.env.JWT_RSA_PUBLIC_KEY_BASE64 || "RSAPUBLICKEYINBASE64",
+    "base64"
+  ).toString("utf8"),
   JWT_AUDIENCE: process.env.JWT_AUDIENCE,
   JWT_ISSUER: process.env.JWT_ISSUER,
   GMAIL_USER: process.env.GMAIL_USER,
@@ -17,4 +24,6 @@ export const env = {
   RECEPTION: "reception",
   HOSPITAL: "hospital",
   LABORATORY: "laboratory",
+  ADMIN: "admin",
+  ALLOWEDIMAGETYPES: ["image/jpeg", "image/jpg", "image/png"],
 };

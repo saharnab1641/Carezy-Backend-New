@@ -24,9 +24,7 @@ export interface IPatient extends Document {
   gender: String;
   email: String;
   contact: String;
-  authId: String;
   contactAlternate: String;
-  age: number;
   dateOfBirth: Date;
   deceasedBoolean: boolean;
   maritalStatusBoolean: boolean;
@@ -128,17 +126,8 @@ export const PatientSchema: Schema<IPatient> = new Schema<IPatient>(
       required: true,
       unique: true,
     },
-    authId: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     contactAlternate: {
       type: String,
-    },
-    age: {
-      type: Number,
-      required: true,
     },
     dateOfBirth: {
       type: Date,

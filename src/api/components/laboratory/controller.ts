@@ -288,7 +288,7 @@ export class LaboratoryController {
       };
 
       if (!req.file) {
-        res.json({ error: "File not uploaded" });
+        return res.json({ error: "File not uploaded" });
       }
 
       const resultDateTime = new Date(body.uploadDate);
@@ -300,8 +300,8 @@ export class LaboratoryController {
 
       const response = await this.fileTransferService.uploadFile(
         "labreport",
-        req.file.buffer,
-        req.file.originalname
+        req.file,
+        true
       );
 
       await LabReportModel.findByIdAndUpdate(body.reportId, {

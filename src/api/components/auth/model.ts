@@ -7,6 +7,7 @@ export interface IAuth extends Document {
   username: String;
   email: String;
   contact: String;
+  profileImageURL: String;
   password: String;
   role: String;
 }
@@ -33,6 +34,9 @@ export const AuthSchema: Schema<IAuth> = new Schema<IAuth>(
     contact: {
       type: String,
       required: true,
+    },
+    profileImageURL: {
+      type: String,
     },
     password: {
       type: String,

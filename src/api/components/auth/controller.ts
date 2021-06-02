@@ -3,12 +3,16 @@ import { NextFunction, Request, Response } from "express";
 import { authenticate } from "passport";
 import { AuthService } from "../../../services/auth";
 import { env } from "../../../config/globals";
+import { FileTransferService } from "../../../services/file-transfer";
+import { AuthModel, IAuth } from "./model";
 
 export class AuthController {
-  authService: AuthService;
+  private authService: AuthService;
+  private fileTransferService: FileTransferService;
 
   public constructor() {
     this.authService = new AuthService();
+    this.fileTransferService = new FileTransferService();
   }
 
   @bind
@@ -29,12 +33,14 @@ export class AuthController {
         req.login(user, { session: false }, async (error) => {
           if (error) return next(error);
 
-          const body: object = {
+          const body: any = {
             username: user.username,
-            firstname: user.firstName,
-            lastname: user.lastName,
+            firstName: user.firstName,
+            lastName: user.lastName,
             role: user.role,
+            profileImageURL: user.profileImageURL || "",
           };
+
           const token: string = this.authService.createToken(body);
 
           return res.json({ token });
@@ -74,5 +80,33 @@ export class AuthController {
         });
       }
     )(req, res, next);
+  }
+
+  @bind
+  public async updatePicture(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      if (!req.file) {
+        return res.json({ error: "File not uploaded" });
+      }
+
+      const response = await this.fileTransferService.uploadFile(
+        "profilepicture",
+        req.file,
+        false,
+        env.ALLOWEDIMAGETYPES
+      );
+      await AuthModel.updateOne(
+        { username: req.body.username },
+        { profileImageURL: response }
+      );
+
+      return res.json({ message: "Picture Updated", response });
+    } catch (err) {
+      return next(err);
+    }
   }
 }

@@ -18,9 +18,9 @@ export interface IAppointment extends Document {
 
 export interface IVitals extends Document {
   temperature: number;
-  bloodPressure: number;
+  bloodPressure: String;
   pulseRate: number;
-  respiratoryRate: number;
+  spO2: number;
   height: number;
   weight: number;
 }
@@ -89,12 +89,12 @@ const VitalsSchema: Schema<IVitals> = new Schema<IVitals>(
       type: Number,
     },
     bloodPressure: {
-      type: Number,
+      type: String,
     },
     pulseRate: {
       type: Number,
     },
-    respiratoryRate: {
+    spO2: {
       type: Number,
     },
     height: {
