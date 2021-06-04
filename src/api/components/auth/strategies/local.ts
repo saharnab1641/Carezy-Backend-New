@@ -50,6 +50,8 @@ export class LocalStrategy {
             ...reqResourceBody,
           };
 
+          resource.dateOfBirth = new Date(reqResourceBody.dateOfBirth);
+
           switch (req.body.role) {
             case env.ROLE_ENUM.patient: {
               if (resource.insurance) {
@@ -57,7 +59,6 @@ export class LocalStrategy {
                   reqResourceBody.insurance.expiryDate
                 );
               }
-              resource.dateOfBirth = new Date(reqResourceBody.dateOfBirth);
               const patientFHIR = this.fhirService.getPatientFHIR(resource);
               const { id } = await this.fhirService.createResource(patientFHIR);
               resource.fhirId = id;
@@ -116,7 +117,7 @@ export class LocalStrategy {
             `<b>Username<b>: ${auth.username}<br><b>Password<b>: ${auth.password}`
           );
 
-          return done(null, user);
+          return done(null, user[0]);
         } catch (error) {
           await session.abortTransaction();
           session.endSession();
