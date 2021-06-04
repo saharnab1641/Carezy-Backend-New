@@ -8,13 +8,8 @@ export class JWTStrategy {
     audience: env.JWT_AUDIENCE,
     issuer: env.JWT_ISSUER,
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: env.JWT_SECRET,
-  };
-
-  readonly signOptions: SignOptions = {
-    audience: this.strategyOptions.audience,
-    expiresIn: "8h",
-    issuer: this.strategyOptions.issuer,
+    secretOrKey: env.JWT_RSA_PUBLIC_KEY,
+    algorithms: ["RS256"],
   };
 
   public jwtStrategy: Strategy = new Strategy(
