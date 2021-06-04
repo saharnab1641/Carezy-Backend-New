@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import { MailService } from "../../../services/mail";
 import { AppointmentModel, IAppointment, IConsultation } from "./model";
 import { bind } from "decko";
-import { DoctorModel } from "../doctor/model";
 import { PatientModel } from "../patient/model";
 import { SHA1 } from "crypto-js";
 import { v4 as uuidv4 } from "uuid";

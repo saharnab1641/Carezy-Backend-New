@@ -1,5 +1,5 @@
 import { Schema, Document, model, Model } from "mongoose";
-import { hash, compare } from "bcrypt";
+import { env } from "../../../config/globals";
 
 export interface IGuardian extends Document {
   firstName: String;
@@ -18,6 +18,7 @@ export interface IInsurance extends Document {
 }
 
 export interface IPatient extends Document {
+  fhirId: String;
   firstName: String;
   lastName: String;
   username: String;
@@ -25,12 +26,13 @@ export interface IPatient extends Document {
   email: String;
   contact: String;
   contactAlternate: String;
+  profileImageURL: String;
   dateOfBirth: Date;
   deceasedBoolean: boolean;
   maritalStatusBoolean: boolean;
   state: String;
   city: String;
-  pincode: number;
+  pincode: String;
   address: String;
   bloodGroup: String;
   personalHistory: String[];
@@ -77,6 +79,7 @@ const GuardianSchema: Schema<IGuardian> = new Schema<IGuardian>(
     gender: {
       type: String,
       required: true,
+      enum: env.GENDER_ENUM,
     },
     identificationType: {
       type: String,
@@ -99,6 +102,9 @@ const GuardianSchema: Schema<IGuardian> = new Schema<IGuardian>(
 
 export const PatientSchema: Schema<IPatient> = new Schema<IPatient>(
   {
+    fhirId: {
+      type: String,
+    },
     firstName: {
       type: String,
       required: true,
@@ -110,6 +116,7 @@ export const PatientSchema: Schema<IPatient> = new Schema<IPatient>(
     gender: {
       type: String,
       required: true,
+      enum: env.GENDER_ENUM,
     },
     username: {
       type: String,
@@ -127,6 +134,9 @@ export const PatientSchema: Schema<IPatient> = new Schema<IPatient>(
       unique: true,
     },
     contactAlternate: {
+      type: String,
+    },
+    profileImageURL: {
       type: String,
     },
     dateOfBirth: {
@@ -150,7 +160,7 @@ export const PatientSchema: Schema<IPatient> = new Schema<IPatient>(
       required: true,
     },
     pincode: {
-      type: Number,
+      type: String,
       required: true,
     },
     address: {

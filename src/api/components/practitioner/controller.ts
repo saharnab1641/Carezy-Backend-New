@@ -1,16 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import { MailService } from "../../../services/mail";
 
-import { bind } from "decko";
 import {
-  DoctorModel,
-  IDoctor,
+  PractitionerModel,
+  IPractitioner,
   ISpecialization,
   SpecializationModel,
-} from "../doctor/model";
-import { PatientModel } from "../patient/model";
+} from "../practitioner/model";
 
-export class DoctorController {
+export class PractitionerController {
   readonly mailService: MailService;
 
   constructor() {
@@ -50,16 +48,20 @@ export class DoctorController {
     }
   }
 
-  public async getDoctors(
+  public async getPractitioners(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      const filters: any = {};
+      const filters: any = {
+        role: req.body.role,
+      };
       if (req.body.specialization)
         filters.specialization = req.body.specialization;
-      const doctors: Array<IDoctor> = await DoctorModel.find(filters)
+      const practitioners: Array<IPractitioner> = await PractitionerModel.find(
+        filters
+      )
         .select({
           firstName: 1,
           lastName: 1,
@@ -68,27 +70,27 @@ export class DoctorController {
           _id: 0,
         })
         .exec();
-      return res.json({ doctors });
+      return res.json({ practitioners });
     } catch (err) {
       return next(err);
     }
   }
 
-  public async getDoctor(
+  public async getPractitioner(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      const doctorUsername = req.body.doctorUsername;
+      const username = req.body.username;
 
-      const doctor: IDoctor = await DoctorModel.findOne({
-        username: doctorUsername,
+      const practitioner: IPractitioner = await PractitionerModel.findOne({
+        username,
       })
-        .select({ _id: 0, authId: 0, appointments: 0 })
+        .select({ _id: 0 })
         .exec();
       res;
-      return res.json(doctor);
+      return res.json(practitioner);
     } catch (err) {
       return next(err);
     }

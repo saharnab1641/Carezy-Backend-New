@@ -5,22 +5,18 @@ import { v4 as uuidv4 } from "uuid";
 import { generate } from "generate-password";
 import { MailService } from "../../../../services/mail";
 import { IPatient, PatientModel } from "../../patient/model";
-import {
-  DoctorModel,
-  IDoctor,
-  ISchedule,
-  IVisitTime,
-} from "../../doctor/model";
 import { AuthModel, IAuth } from "../model";
-import { NurseModel } from "../../nurse/model";
-import { LaboratoryModel } from "../../laboratory/model";
 import { ClientSession, startSession } from "mongoose";
+import { FHIRService } from "../../../../services/fhir";
+import { PractitionerModel } from "../../practitioner/model";
 
 export class LocalStrategy {
   private mailService: MailService;
+  private fhirService: FHIRService;
 
   constructor() {
     this.mailService = new MailService();
+    this.fhirService = new FHIRService();
   }
 
   public signUpStrategy: Strategy = new Strategy(
@@ -42,43 +38,44 @@ export class LocalStrategy {
               numbers: true,
               strict: true,
             }),
+            role: req.body.role,
           };
 
-          await AuthModel.create(
-            [
-              {
-                ...auth,
-                role: req.body.role,
-              },
-            ],
-            { session: session }
-          );
+          await AuthModel.create([auth], { session: session });
 
           let user: any;
           const reqResourceBody = req.body.resource;
+          const resource: any = {
+            ...auth,
+            ...reqResourceBody,
+          };
 
           switch (req.body.role) {
-            case env.PATIENT: {
-              const resource: any = {
-                ...auth,
-                ...reqResourceBody,
-              };
+            case env.ROLE_ENUM.patient: {
               if (resource.insurance) {
                 resource.insurance.expiryDate = new Date(
                   reqResourceBody.insurance.expiryDate
                 );
               }
               resource.dateOfBirth = new Date(reqResourceBody.dateOfBirth);
+              const patientFHIR = this.fhirService.getPatientFHIR(resource);
+              const { id } = await this.fhirService.createResource(patientFHIR);
+              resource.fhirId = id;
               user = await PatientModel.create([resource], {
                 session: session,
               });
               break;
             }
-            case env.DOCTOR: {
-              const resource: any = {
-                ...auth,
-                ...reqResourceBody,
-              };
+            case env.ROLE_ENUM.doctor: {
+              if (
+                !(
+                  reqResourceBody.schedule &&
+                  reqResourceBody.slotDuration &&
+                  reqResourceBody.fees
+                )
+              ) {
+                throw new Error("More details required for Doctor");
+              }
               const scheduleRaw = reqResourceBody.schedule;
               var schedule: any = {};
               for (const day in scheduleRaw) {
@@ -90,27 +87,24 @@ export class LocalStrategy {
                 schedule[day] = { start, end };
               }
               resource.schedule = schedule;
-              user = await DoctorModel.create([resource], { session: session });
-              break;
             }
-            case env.NURSE: {
-              const resource: any = {
-                ...auth,
-                ...reqResourceBody,
-              };
-              user = await NurseModel.create([resource], { session: session });
-              break;
-            }
-            case env.LABORATORY: {
-              const resource: any = {
-                ...auth,
-                ...reqResourceBody,
-              };
-              user = await LaboratoryModel.create([resource], {
+            case env.ROLE_ENUM.admin:
+            case env.ROLE_ENUM.nurse:
+            case env.ROLE_ENUM.laboratory:
+            case env.ROLE_ENUM.reception: {
+              const practitionerFHIR =
+                this.fhirService.getPractitionerFHIR(resource);
+              const { id } = await this.fhirService.createResource(
+                practitionerFHIR
+              );
+              resource.fhirId = id;
+              user = await PractitionerModel.create([resource], {
                 session: session,
               });
               break;
             }
+            default:
+              throw new Error("Not a valid role");
           }
 
           await session.commitTransaction();

@@ -1,5 +1,6 @@
 import { Schema, Document, model, Model } from "mongoose";
 import { hash, compare } from "bcrypt";
+import { env } from "../../../config/globals";
 
 export interface IAuth extends Document {
   firstName: String;
@@ -45,6 +46,7 @@ export const AuthSchema: Schema<IAuth> = new Schema<IAuth>(
     role: {
       type: String,
       required: true,
+      enum: env.ROLE_ENUM,
     },
   },
   { timestamps: true }

@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/saharnab1641/Carezy-Backend-New#readme",
   "dependencies": {
+    "@ahryman40k/ts-fhir-types": "^4.0.36",
     "@google-cloud/storage": "^5.8.5",
     "accesscontrol": "^2.2.1",
     "bcrypt": "^5.0.0",
@@ -35,6 +36,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "generate-password": "^1.6.0",
+    "googleapis": "^74.2.0",
     "helmet": "^4.4.1",
     "jsonwebtoken": "^8.5.1",
     "mime-types": "^2.1.30",
@@ -54,7 +56,6 @@
     "@types/cors": "^2.8.9",
     "@types/crypto-js": "^4.0.1",
     "@types/express": "^4.17.11",
-    "@types/fhir": "^3.0.2",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/mime-types": "^2.1.0",
     "@types/mongoose": "^5.10.3",
