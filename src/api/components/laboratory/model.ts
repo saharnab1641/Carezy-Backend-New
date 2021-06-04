@@ -1,53 +1,6 @@
 import { Schema, Document, model, Model } from "mongoose";
 import { hash, compare } from "bcrypt";
 
-export interface ILaboratory extends Document {
-  firstName: String;
-  lastName: String;
-  username: String;
-  gender: String;
-  email: String;
-  contact: String;
-}
-
-export const LaboratorySchema: Schema<ILaboratory> = new Schema<ILaboratory>(
-  {
-    firstName: {
-      type: String,
-      required: true,
-    },
-    lastName: {
-      type: String,
-      required: true,
-    },
-    gender: {
-      type: String,
-      required: true,
-    },
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    contact: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-  },
-  { timestamps: true }
-);
-
-export const LaboratoryModel: Model<ILaboratory> = model(
-  "laboratory",
-  LaboratorySchema
-);
-
 export interface IInvestigation extends Document {
   name: String;
   description: String;

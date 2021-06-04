@@ -1,12 +1,14 @@
 import { Router } from "express";
 import { IComponentRoutes } from "../index";
-import { DoctorController } from "./controller";
+import { PractitionerController } from "./controller";
 import { AuthService } from "../../../services/auth";
 
-export class DoctorRoutes implements IComponentRoutes<DoctorController> {
-  readonly controller: DoctorController = new DoctorController();
+export class PractitionerRoutes
+  implements IComponentRoutes<PractitionerController>
+{
+  readonly controller: PractitionerController = new PractitionerController();
   readonly router: Router = Router();
-  authService: AuthService;
+  private authService: AuthService;
 
   public constructor() {
     this.authService = new AuthService();
@@ -15,14 +17,14 @@ export class DoctorRoutes implements IComponentRoutes<DoctorController> {
 
   initRoutes(): void {
     this.router.post(
-      "/getdoctors",
+      "/getpractitioners",
       // this.authService.isAuthorized(),
-      this.controller.getDoctors
+      this.controller.getPractitioners
     );
     this.router.post(
-      "/getdoctor",
+      "/getpractitioner",
       // this.authService.isAuthorized(),
-      this.controller.getDoctor
+      this.controller.getPractitioner
     );
     this.router.post(
       "/addspecialization",
