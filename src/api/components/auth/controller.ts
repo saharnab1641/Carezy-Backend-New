@@ -5,14 +5,19 @@ import { AuthService } from "../../../services/auth";
 import { env } from "../../../config/globals";
 import { FileTransferService } from "../../../services/file-transfer";
 import { AuthModel, IAuth } from "./model";
+import { FHIRService } from "../../../services/fhir";
+import { PractitionerModel } from "../practitioner/model";
+import { PatientModel } from "../patient/model";
 
 export class AuthController {
   private authService: AuthService;
   private fileTransferService: FileTransferService;
+  private FHIRService: FHIRService;
 
   public constructor() {
     this.authService = new AuthService();
     this.fileTransferService = new FileTransferService();
+    this.FHIRService = new FHIRService();
   }
 
   @bind
@@ -38,8 +43,9 @@ export class AuthController {
             firstName: user.firstName,
             lastName: user.lastName,
             role: user.role,
-            profileImageURL: user.profileImageURL || "",
           };
+
+          if (user.profileImageURL) body.profileImageURL = user.profileImageURL;
 
           const token: string = this.authService.createToken(body);
 
@@ -102,6 +108,33 @@ export class AuthController {
       await AuthModel.updateOne(
         { username: req.body.username },
         { profileImageURL: response }
+      );
+
+      if (req.body.role === env.ROLE_ENUM.patient) {
+        await PatientModel.updateOne(
+          { username: req.body.username },
+          { profileImageURL: response }
+        );
+      } else {
+        await PractitionerModel.updateOne(
+          { username: req.body.username },
+          { profileImageURL: response }
+        );
+      }
+
+      const attachmentFHIR = this.FHIRService.getAttachmentFHIR(
+        req.file,
+        response,
+        "Profile Picture",
+        new Date()
+      );
+      const patchOptions = [
+        { op: "add", path: "/photo", value: [attachmentFHIR] },
+      ];
+      await this.FHIRService.patchResource(
+        req.body.role === env.ROLE_ENUM.patient ? "Patient" : "Practitioner",
+        req.body.fhirId,
+        patchOptions
       );
 
       return res.json({ message: "Picture Updated", response });

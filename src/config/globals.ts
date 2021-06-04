@@ -1,3 +1,18 @@
+enum GENDER_ENUM {
+  male = "male",
+  female = "female",
+  other = "other",
+}
+
+enum ROLE_ENUM {
+  patient = "patient",
+  nurse = "nurse",
+  doctor = "doctor",
+  reception = "reception",
+  laboratory = "laboratory",
+  admin = "admin",
+}
+
 export const env = {
   NODE_ENV: process.env.NODE_ENV || "development",
   PORT: process.env.NODE_PORT || process.env.PORT || 3000,
@@ -16,14 +31,13 @@ export const env = {
   GMAIL_PASS: process.env.GMAIL_PASS,
   RAZORPAY_ID: process.env.RAZORPAY_ID,
   RAZORPAY_SECRET: process.env.RAZORPAY_SECRET || "secret",
-  GCP_KEYFILE: process.env.GCP_KEYFILE || "keyfileJSONstring",
+  GCP_KEYFILE: JSON.parse(
+    process.env.GCP_KEYFILE || '{"gcpkeyfilestringified":"sample"}'
+  ),
+  FHIR_BASE: `projects/${process.env.GCP_PROJECT_ID}/locations/${process.env.GCP_FHIR_CLOUD_REGION}/datasets/${process.env.GCP_FHIR_DATASET_ID}/fhirStores/${process.env.GCP_FHIR_STORE_ID}`,
   GCP_BUCKET: process.env.GCP_BUCKET || "bucket",
-  PATIENT: "patient",
-  DOCTOR: "doctor",
-  NURSE: "nurse",
-  RECEPTION: "reception",
   HOSPITAL: "hospital",
-  LABORATORY: "laboratory",
-  ADMIN: "admin",
+  ROLE_ENUM,
   ALLOWEDIMAGETYPES: ["image/jpeg", "image/jpg", "image/png"],
+  GENDER_ENUM,
 };

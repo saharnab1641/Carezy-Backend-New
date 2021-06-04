@@ -20,7 +20,7 @@ export class FileTransferService {
       },
     });
     this.storage = new Storage({
-      credentials: JSON.parse(env.GCP_KEYFILE),
+      credentials: env.GCP_KEYFILE,
     });
   }
 
@@ -35,33 +35,37 @@ export class FileTransferService {
     allowedMimeTypes: Array<String> = []
   ): Promise<String> =>
     new Promise((resolve, reject) => {
-      if (allowedMimeTypes.length != 0) {
-        if (!allowedMimeTypes.includes(file.mimetype)) {
-          reject("File type not allowed");
+      try {
+        if (allowedMimeTypes.length != 0) {
+          if (!allowedMimeTypes.includes(file.mimetype)) {
+            reject("File type not allowed");
+          }
         }
+        const bucket: Bucket = this.storage.bucket(env.GCP_BUCKET);
+        const blob = bucket.file(
+          folder + "/" + uuidv4() + this.getFileExtension(file.originalname)
+        );
+        const blobStream = blob.createWriteStream({
+          resumable: false,
+        });
+
+        blobStream.on("error", (err) => {
+          reject("Unable to upload file, something went wrong");
+        });
+
+        blobStream.on("finish", async () => {
+          if (!privacy) {
+            await blob.makePublic();
+            resolve(blob.publicUrl());
+          } else {
+            resolve(blob.name);
+          }
+        });
+
+        blobStream.end(file.buffer);
+      } catch (err) {
+        reject(err);
       }
-      const bucket: Bucket = this.storage.bucket(env.GCP_BUCKET);
-      const blob = bucket.file(
-        folder + "/" + uuidv4() + this.getFileExtension(file.originalname)
-      );
-      const blobStream = blob.createWriteStream({
-        resumable: false,
-      });
-
-      blobStream.on("error", (err) => {
-        reject("Unable to upload file, something went wrong");
-      });
-
-      blobStream.on("finish", async () => {
-        if (!privacy) {
-          await blob.makePublic();
-          resolve(blob.publicUrl());
-        } else {
-          resolve(blob.name);
-        }
-      });
-
-      blobStream.end(file.buffer);
     });
 
   public downloadFile = (
@@ -70,25 +74,29 @@ export class FileTransferService {
     res: Response
   ): Promise<String> =>
     new Promise((resolve, reject) => {
-      res.writeHead(200, {
-        "Content-Disposition": `attachment; filename="${
-          newName.toString() + this.getFileExtension(fileName)
-        }"`,
-        "Content-Type": lookup(
-          this.getFileExtension(fileName).toString()
-        ).toString(),
-      });
-      const bucket: Bucket = this.storage.bucket(env.GCP_BUCKET);
-      const blob = bucket.file(fileName.toString());
-      const blobStream = blob.createReadStream();
+      try {
+        res.writeHead(200, {
+          "Content-Disposition": `attachment; filename="${
+            newName.toString() + this.getFileExtension(fileName)
+          }"`,
+          "Content-Type": lookup(
+            this.getFileExtension(fileName).toString()
+          ).toString(),
+        });
+        const bucket: Bucket = this.storage.bucket(env.GCP_BUCKET);
+        const blob = bucket.file(fileName.toString());
+        const blobStream = blob.createReadStream();
 
-      blobStream
-        .on("error", () => {
-          reject("Unable to upload file, something went wrong");
-        })
-        .on("end", () => {
-          resolve("Downloaded");
-        })
-        .pipe(res);
+        blobStream
+          .on("error", () => {
+            reject("Unable to upload file, something went wrong");
+          })
+          .on("end", () => {
+            resolve("Downloaded");
+          })
+          .pipe(res);
+      } catch (err) {
+        reject(err);
+      }
     });
 }
