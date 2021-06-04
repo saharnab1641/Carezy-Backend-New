@@ -1,19 +1,27 @@
 import { Schema, Document, model, Model } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
+import { env } from "../../../config/globals";
 
 export interface IAppointment extends Document {
   appointmentDateTime: Date;
   problem: String;
   status: String;
   patientUsername: String;
+  patientFirstName: String;
+  patientLastName: String;
   doctorUsername: String;
+  doctorFirstName: String;
+  doctorLastName: String;
   nurseUsername: String;
+  nurseFirstName: String;
+  nurseLastName: String;
   message: String;
   consultationDetails: IConsultation;
   DDSHash: String;
   amount: number;
   receiptId: String;
   paymentSource: String;
+  fhirId: String;
 }
 
 export interface IVitals extends Document {
@@ -149,10 +157,18 @@ export const AppointmentSchema: Schema<IAppointment> = new Schema<IAppointment>(
     },
     status: {
       type: String,
-      default: "pending",
-      enum: ["pending", "approved", "rejected", "inclinic", "consulted"],
+      default: env.APPOINTMENT_STATUS.pending,
+      enum: env.APPOINTMENT_STATUS,
     },
     patientUsername: {
+      type: String,
+      required: true,
+    },
+    patientFirstName: {
+      type: String,
+      required: true,
+    },
+    patientLastName: {
       type: String,
       required: true,
     },
@@ -160,7 +176,21 @@ export const AppointmentSchema: Schema<IAppointment> = new Schema<IAppointment>(
       type: String,
       required: true,
     },
+    doctorFirstName: {
+      type: String,
+      required: true,
+    },
+    doctorLastName: {
+      type: String,
+      required: true,
+    },
     nurseUsername: {
+      type: String,
+    },
+    nurseFirstName: {
+      type: String,
+    },
+    nurseLastName: {
       type: String,
     },
     message: {
@@ -185,8 +215,11 @@ export const AppointmentSchema: Schema<IAppointment> = new Schema<IAppointment>(
     },
     paymentSource: {
       type: String,
-      enum: ["app", "reception"],
+      enum: env.PAYMENT_SOURCE,
       required: true,
+    },
+    fhirId: {
+      type: String,
     },
   },
   { timestamps: true }
@@ -196,7 +229,7 @@ AppointmentSchema.index(
   { createdAt: 1 },
   {
     expireAfterSeconds: 20 * 60,
-    partialFilterExpression: { status: "pending" },
+    partialFilterExpression: { status: env.APPOINTMENT_STATUS.pending },
   }
 );
 

@@ -1,5 +1,6 @@
 import { Schema, Document, model, Model } from "mongoose";
 import { hash, compare } from "bcrypt";
+import { env } from "../../../config/globals";
 
 export interface IReceipt extends Document {
   resourceId: String[];
@@ -26,7 +27,7 @@ export const ReceiptSchema: Schema<IReceipt> = new Schema<IReceipt>(
     },
     paymentSource: {
       type: String,
-      enum: ["app", "reception"],
+      enum: env.PAYMENT_SOURCE,
       required: true,
     },
     paymentRemarks: {
@@ -56,7 +57,8 @@ export const ReceiptSchema: Schema<IReceipt> = new Schema<IReceipt>(
     },
     status: {
       type: String,
-      default: "created",
+      default: env.RECEIPT_STATUS.created,
+      enum: env.RECEIPT_STATUS,
     },
   },
   { timestamps: true }

@@ -13,6 +13,33 @@ enum ROLE_ENUM {
   admin = "admin",
 }
 
+enum APPOINTMENT_STATUS {
+  pending = "pending",
+  approved = "approved",
+  rejected = "rejected",
+  inclinic = "inclinic",
+  consulted = "consulted",
+}
+
+enum RECEIPT_STATUS {
+  created = "created",
+  paid = "paid",
+  abandoned = "abandoned",
+  refunded = "refunded",
+}
+
+enum PAYMENT_SOURCE {
+  app = "app",
+  reception = "reception",
+}
+
+enum LAB_REPORT_STATUS {
+  pending = "pending",
+  approved = "approved",
+  scheduled = "scheduled",
+  completed = "completed",
+}
+
 export const env = {
   NODE_ENV: process.env.NODE_ENV || "development",
   PORT: process.env.NODE_PORT || process.env.PORT || 3000,
@@ -40,4 +67,8 @@ export const env = {
   ROLE_ENUM,
   ALLOWEDIMAGETYPES: ["image/jpeg", "image/jpg", "image/png"],
   GENDER_ENUM,
+  APPOINTMENT_STATUS,
+  RECEIPT_STATUS,
+  PAYMENT_SOURCE,
+  LAB_REPORT_STATUS,
 };

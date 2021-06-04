@@ -12,6 +12,9 @@ import { v4 as uuidv4 } from "uuid";
 import { PaymentService } from "../../../services/payment";
 import { IReceipt, ReceiptModel } from "../receipt/model";
 import { FileTransferService } from "../../../services/file-transfer";
+import { env } from "../../../config/globals";
+import { AppointmentModel, IAppointment } from "../appointment/model";
+import { IPractitioner, PractitionerModel } from "../practitioner/model";
 
 export class LaboratoryController {
   readonly mailService: MailService;
@@ -77,7 +80,7 @@ export class LaboratoryController {
       const order = await this.paymentService.createOrder(params);
 
       const newReceipt: Partial<IReceipt> = {
-        paymentSource: "app",
+        paymentSource: env.PAYMENT_SOURCE.app,
         receiptFor: "labreport",
         paymentRemarks: body.paymentRemarks,
         orderId: order.id,
@@ -108,10 +111,11 @@ export class LaboratoryController {
         paymentId: req.body.razorpay_payment_id,
         signature: req.body.razorpay_signature,
         appointmentId: req.body.appointmentId,
-        patientUsername: req.body.patientUsername,
-        doctorUsername: req.body.doctorUsername,
-        investigations: req.body.investigations,
       };
+
+      const appointment: IAppointment = await AppointmentModel.findById(
+        body.appointmentId
+      );
 
       if (
         !this.paymentService.verifyPayment(
@@ -125,13 +129,19 @@ export class LaboratoryController {
 
       const reportArray = new Array();
 
-      for (const investigation in body.investigations) {
+      for (const investigation in appointment.consultationDetails
+        .investigation) {
         reportArray.push({
-          investigation: body.investigations[investigation],
-          status: "approved",
+          investigation:
+            appointment.consultationDetails.investigation[investigation],
+          status: env.LAB_REPORT_STATUS.approved,
           appointmentId: body.appointmentId,
-          patientUsername: body.patientUsername,
-          doctorUsername: body.doctorUsername,
+          patientUsername: appointment.patientUsername,
+          patientFirstName: appointment.patientFirstName,
+          patientLastName: appointment.patientLastName,
+          doctorUsername: appointment.doctorUsername,
+          doctorFirstName: appointment.doctorFirstName,
+          doctorLastName: appointment.doctorLastName,
           receiptId: body.receiptId,
         });
       }
@@ -152,7 +162,7 @@ export class LaboratoryController {
           resourceId: resourceIds,
           paymentId: body.paymentId,
           signature: body.signature,
-          status: "paid",
+          status: env.RECEIPT_STATUS.paid,
         },
         { new: true }
       );
@@ -201,6 +211,48 @@ export class LaboratoryController {
           $gte: new Date(dayStart.toISOString()),
           $lte: new Date(dayEnd.toISOString()),
         };
+      }
+
+      if (req.body.patientName) {
+        if (
+          !(req.body.patientName.firstName && req.body.patientName.lastName)
+        ) {
+          return res.json({ error: "Provide patient first and last name." });
+        }
+        filters.$and = [
+          {
+            patientFirstName: new RegExp(
+              "^" + req.body.patientName.firstName + "$",
+              "i"
+            ),
+          },
+          {
+            patientLastName: new RegExp(
+              "^" + req.body.patientName.lastName + "$",
+              "i"
+            ),
+          },
+        ];
+      }
+
+      if (req.body.doctorName) {
+        if (!(req.body.doctorName.firstName && req.body.doctorName.lastName)) {
+          return res.json({ error: "Provide doctor first and last name." });
+        }
+        filters.$and = [
+          {
+            doctorFirstName: new RegExp(
+              "^" + req.body.doctorName.firstName + "$",
+              "i"
+            ),
+          },
+          {
+            doctorLastName: new RegExp(
+              "^" + req.body.doctorName.lastName + "$",
+              "i"
+            ),
+          },
+        ];
       }
 
       if (req.body.investigation) {
@@ -263,7 +315,7 @@ export class LaboratoryController {
       await LabReportModel.findByIdAndUpdate(body.reportId, {
         scheduledDateTime: scheduledDateTime,
         instructions: body.instructions,
-        status: "scheduled",
+        status: env.LAB_REPORT_STATUS.scheduled,
       });
 
       return res.json({ message: "Date set" });
@@ -282,21 +334,18 @@ export class LaboratoryController {
       const body = {
         reportId: req.body.reportId,
         labInchargeUsername: req.body.labInchargeUsername,
-        uploadDate: req.body.uploadDate,
-        uploadTime: req.body.uploadTime,
         reportMessage: req.body.reportMessage,
       };
+
+      const labWorker: IPractitioner = await PractitionerModel.findOne({
+        username: body.labInchargeUsername,
+      })
+        .select({ firstName: 1, lastName: 1 })
+        .exec();
 
       if (!req.file) {
         return res.json({ error: "File not uploaded" });
       }
-
-      const resultDateTime = new Date(body.uploadDate);
-      resultDateTime.setHours(
-        body.uploadTime.hours,
-        body.uploadTime.minutes,
-        0
-      );
 
       const response = await this.fileTransferService.uploadFile(
         "labreport",
@@ -306,9 +355,11 @@ export class LaboratoryController {
 
       await LabReportModel.findByIdAndUpdate(body.reportId, {
         labInchargeUsername: body.labInchargeUsername,
-        resultDateTime: resultDateTime,
+        labInchargeFirstName: labWorker.firstName,
+        labInchargeLastName: labWorker.lastName,
+        resultDateTime: new Date(),
         reportMessage: body.reportMessage,
-        status: "completed",
+        status: env.LAB_REPORT_STATUS.completed,
         attachmentName: response,
       });
 

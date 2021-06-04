@@ -37,12 +37,18 @@ export interface ILabReport extends Document {
   investigation: String;
   appointmentId: String;
   patientUsername: String;
+  patientFirstName: String;
+  patientLastName: String;
   doctorUsername: String;
+  doctorFirstName: String;
+  doctorLastName: String;
   status: String;
   scheduledDateTime: Date;
   instructions: String;
   resultDateTime: Date;
   labInchargeUsername: String;
+  labInchargeFirstName: String;
+  labInchargeLastName: String;
   receiptId: String;
   reportMessage: String;
   attachmentName: String;
@@ -62,7 +68,23 @@ export const LabReportSchema: Schema<ILabReport> = new Schema<ILabReport>(
       type: String,
       required: true,
     },
+    patientFirstName: {
+      type: String,
+      required: true,
+    },
+    patientLastName: {
+      type: String,
+      required: true,
+    },
     doctorUsername: {
+      type: String,
+      required: true,
+    },
+    doctorFirstName: {
+      type: String,
+      required: true,
+    },
+    doctorLastName: {
       type: String,
       required: true,
     },
@@ -81,6 +103,12 @@ export const LabReportSchema: Schema<ILabReport> = new Schema<ILabReport>(
       type: Date,
     },
     labInchargeUsername: {
+      type: String,
+    },
+    labInchargeFirstName: {
+      type: String,
+    },
+    lastInchargeLastName: {
       type: String,
     },
     receiptId: {
