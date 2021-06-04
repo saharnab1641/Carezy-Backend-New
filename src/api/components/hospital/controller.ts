@@ -54,7 +54,7 @@ export class HospitalController {
         dayStart.setHours(0, 0, 0);
         const dayEnd = new Date(req.body.date.end);
         dayEnd.setHours(23, 59, 59);
-        filters.date = {
+        filters.createdAt = {
           $gte: new Date(dayStart.toISOString()),
           $lte: new Date(dayEnd.toISOString()),
         };
