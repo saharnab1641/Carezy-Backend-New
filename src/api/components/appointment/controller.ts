@@ -69,22 +69,22 @@ export class AppointmentController {
       const patient: IPatient = await PatientModel.findOne({
         username: appointmentBody.patientUsername,
       })
-        .select({ firstName: 1, lastName: 1 })
+        .select({ _id: 1, firstName: 1, lastName: 1 })
         .exec();
 
       const doctor: IPractitioner = await PractitionerModel.findOne({
         username: appointmentBody.doctorUsername,
       })
-        .select({ firstName: 1, lastName: 1, fees: 1 })
+        .select({ _id: 1, firstName: 1, lastName: 1, fees: 1 })
         .exec();
 
       const newAppointment: Partial<IAppointment> = {
         appointmentDateTime: date,
         problem: appointmentBody.problem,
-        patientUsername: appointmentBody.patientUsername,
+        patientId: patient._id,
         patientFirstName: patient.firstName,
         patientLastName: patient.lastName,
-        doctorUsername: appointmentBody.doctorUsername,
+        doctorId: doctor._id,
         doctorFirstName: doctor.firstName,
         doctorLastName: doctor.lastName,
         amount: doctor.fees,
@@ -268,14 +268,6 @@ export class AppointmentController {
         };
       }
 
-      if (req.body.patientUsername) {
-        filters.patientUsername = req.body.patientUsername;
-      }
-
-      if (req.body.doctorUsername) {
-        filters.doctorUsername = req.body.doctorUsername;
-      }
-
       if (req.body.status) {
         filters.status = req.body.status;
       }
@@ -323,7 +315,13 @@ export class AppointmentController {
       }
 
       const appointments = await AppointmentModel.find(filters)
-        .select({ DDSHash: 0, createdAt: 0, updatedAt: 0 })
+        .select({
+          DDSHash: 0,
+          createdAt: 0,
+          updatedAt: 0,
+          patientId: 0,
+          doctorId: 0,
+        })
         .exec();
       return res.json({ appointments });
     } catch (err) {
@@ -434,11 +432,11 @@ export class AppointmentController {
       const nurse: IPractitioner = await PractitionerModel.findOne({
         username: body.nurseUsername,
       })
-        .select({ firstName: 1, lastName: 1 })
+        .select({ _id: 1, firstName: 1, lastName: 1 })
         .exec();
 
       await AppointmentModel.findByIdAndUpdate(body.appointmentId, {
-        nurseUsername: body.nurseUsername,
+        nurseId: nurse._id,
         nurseFirstName: nurse.firstName,
         nurseLastName: nurse.lastName,
         $set: { "consultationDetails.vitals": body.vitals },
