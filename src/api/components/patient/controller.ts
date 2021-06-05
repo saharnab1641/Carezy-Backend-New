@@ -34,10 +34,10 @@ export class PatientController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      const patientUsername = req.body.patientUsername;
+      const username = req.body.username;
 
       const patient: IPatient = await PatientModel.findOne({
-        username: patientUsername,
+        username: username,
       })
         .select({ _id: 0, authId: 0 })
         .exec();

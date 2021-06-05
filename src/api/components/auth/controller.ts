@@ -82,7 +82,7 @@ export class AuthController {
 
         res.json({
           message: "Signup successful",
-          userID: user._id,
+          username: user.username,
         });
       }
     )(req, res, next);

@@ -35,7 +35,7 @@ export interface IPractitioner extends Document {
   identificationNumber: String;
   specializationCode: String;
   specializationName: String;
-  fees: String;
+  fees: number;
   slotDuration: number;
   schedule: ISchedule;
   role: String;
@@ -158,7 +158,7 @@ export const PractitionerSchema: Schema<IPractitioner> =
         required: true,
       },
       fees: {
-        type: String,
+        type: Number,
       },
       slotDuration: {
         type: Number,
