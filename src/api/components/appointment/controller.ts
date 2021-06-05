@@ -75,7 +75,7 @@ export class AppointmentController {
       const doctor: IPractitioner = await PractitionerModel.findOne({
         username: appointmentBody.doctorUsername,
       })
-        .select({ firstName: 1, lastName: 1 })
+        .select({ firstName: 1, lastName: 1, fees: 1 })
         .exec();
 
       const newAppointment: Partial<IAppointment> = {
