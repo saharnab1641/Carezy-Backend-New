@@ -39,7 +39,7 @@ export class PatientController {
       const patient: IPatient = await PatientModel.findOne({
         username: username,
       })
-        .select({ _id: 0, authId: 0 })
+        .select({ _id: 0 })
         .exec();
       return res.json(patient);
     } catch (err) {

@@ -136,10 +136,10 @@ export class LaboratoryController {
             appointment.consultationDetails.investigation[investigation],
           status: env.LAB_REPORT_STATUS.approved,
           appointmentId: body.appointmentId,
-          patientUsername: appointment.patientUsername,
+          patientId: appointment.patientId,
           patientFirstName: appointment.patientFirstName,
           patientLastName: appointment.patientLastName,
-          doctorUsername: appointment.doctorUsername,
+          doctorId: appointment.doctorId,
           doctorFirstName: appointment.doctorFirstName,
           doctorLastName: appointment.doctorLastName,
           receiptId: body.receiptId,
@@ -263,18 +263,6 @@ export class LaboratoryController {
         filters.appointmentId = req.body.appointmentId;
       }
 
-      if (req.body.patientUsername) {
-        filters.patientUsername = req.body.patientUsername;
-      }
-
-      if (req.body.doctorUsername) {
-        filters.doctorUsername = req.body.doctorUsername;
-      }
-
-      if (req.body.labInchargeUsername) {
-        filters.labInchargeUsername = req.body.labInchargeUsername;
-      }
-
       if (req.body.status) {
         filters.status = req.body.status;
       }
@@ -340,7 +328,7 @@ export class LaboratoryController {
       const labWorker: IPractitioner = await PractitionerModel.findOne({
         username: body.labInchargeUsername,
       })
-        .select({ firstName: 1, lastName: 1 })
+        .select({ _id: 1, firstName: 1, lastName: 1 })
         .exec();
 
       if (!req.file) {
@@ -354,7 +342,7 @@ export class LaboratoryController {
       );
 
       await LabReportModel.findByIdAndUpdate(body.reportId, {
-        labInchargeUsername: body.labInchargeUsername,
+        labInchargeId: labWorker._id,
         labInchargeFirstName: labWorker.firstName,
         labInchargeLastName: labWorker.lastName,
         resultDateTime: new Date(),

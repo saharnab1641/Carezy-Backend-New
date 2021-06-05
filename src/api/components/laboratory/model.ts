@@ -36,17 +36,17 @@ export const InvestigationModel: Model<IInvestigation> = model(
 export interface ILabReport extends Document {
   investigation: String;
   appointmentId: String;
-  patientUsername: String;
+  patientId: String;
   patientFirstName: String;
   patientLastName: String;
-  doctorUsername: String;
+  doctorId: String;
   doctorFirstName: String;
   doctorLastName: String;
   status: String;
   scheduledDateTime: Date;
   instructions: String;
   resultDateTime: Date;
-  labInchargeUsername: String;
+  labInchargeId: String;
   labInchargeFirstName: String;
   labInchargeLastName: String;
   receiptId: String;
@@ -64,7 +64,7 @@ export const LabReportSchema: Schema<ILabReport> = new Schema<ILabReport>(
       type: String,
       required: true,
     },
-    patientUsername: {
+    patientId: {
       type: String,
       required: true,
     },
@@ -76,7 +76,7 @@ export const LabReportSchema: Schema<ILabReport> = new Schema<ILabReport>(
       type: String,
       required: true,
     },
-    doctorUsername: {
+    doctorId: {
       type: String,
       required: true,
     },
@@ -102,7 +102,7 @@ export const LabReportSchema: Schema<ILabReport> = new Schema<ILabReport>(
     resultDateTime: {
       type: Date,
     },
-    labInchargeUsername: {
+    labInchargeId: {
       type: String,
     },
     labInchargeFirstName: {

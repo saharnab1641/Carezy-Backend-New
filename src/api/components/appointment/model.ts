@@ -6,13 +6,13 @@ export interface IAppointment extends Document {
   appointmentDateTime: Date;
   problem: String;
   status: String;
-  patientUsername: String;
+  patientId: String;
   patientFirstName: String;
   patientLastName: String;
-  doctorUsername: String;
+  doctorId: String;
   doctorFirstName: String;
   doctorLastName: String;
-  nurseUsername: String;
+  nurseId: String;
   nurseFirstName: String;
   nurseLastName: String;
   message: String;
@@ -160,7 +160,7 @@ export const AppointmentSchema: Schema<IAppointment> = new Schema<IAppointment>(
       default: env.APPOINTMENT_STATUS.pending,
       enum: env.APPOINTMENT_STATUS,
     },
-    patientUsername: {
+    patientId: {
       type: String,
       required: true,
     },
@@ -172,7 +172,7 @@ export const AppointmentSchema: Schema<IAppointment> = new Schema<IAppointment>(
       type: String,
       required: true,
     },
-    doctorUsername: {
+    doctorId: {
       type: String,
       required: true,
     },
@@ -184,7 +184,7 @@ export const AppointmentSchema: Schema<IAppointment> = new Schema<IAppointment>(
       type: String,
       required: true,
     },
-    nurseUsername: {
+    nurseId: {
       type: String,
     },
     nurseFirstName: {
