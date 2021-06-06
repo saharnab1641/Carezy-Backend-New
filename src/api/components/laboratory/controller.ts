@@ -15,6 +15,7 @@ import { FileTransferService } from "../../../services/file-transfer";
 import { env } from "../../../config/globals";
 import { AppointmentModel, IAppointment } from "../appointment/model";
 import { IPractitioner, PractitionerModel } from "../practitioner/model";
+import { Types as mongooseTypes } from "mongoose";
 
 export class LaboratoryController {
   readonly mailService: MailService;
@@ -61,45 +62,63 @@ export class LaboratoryController {
   }
 
   @bind
-  public async createReportOrder(
+  public async createAppointmentReportOrder(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response | void> {
     try {
       const body = {
-        amount: req.body.amount,
+        appointmentId: req.body.appointmentId,
         paymentRemarks: req.body.paymentRemarks,
       };
 
-      const params = {
-        amount: body.amount * 100,
-        currency: "INR",
-        receipt: uuidv4(),
-      };
-      const order = await this.paymentService.createOrder(params);
+      const appointment: IAppointment = await AppointmentModel.findById(
+        body.appointmentId
+      );
 
-      const newReceipt: Partial<IReceipt> = {
-        paymentSource: env.PAYMENT_SOURCE.app,
-        receiptFor: "labreport",
-        paymentRemarks: body.paymentRemarks,
-        orderId: order.id,
-        receiptId: order.receipt,
-        amount: order.amount,
-        currency: order.currency,
-        status: order.status,
-      };
+      if (appointment.consultationDetails.investigation.length > 0) {
+        const costs = await InvestigationModel.find({
+          code: { $in: appointment.consultationDetails.investigation },
+        })
+          .select({ cost: 1, _id: 0 })
+          .exec();
+        var amount = 0;
+        for (const cost in costs) amount += costs[cost].cost;
+        if (amount == 0) {
+          return res.json({ error: "Invalid investigation inputs" });
+        }
+        const params = {
+          amount: amount * 100,
+          currency: "INR",
+          receipt: uuidv4(),
+        };
+        const order = await this.paymentService.createOrder(params);
 
-      await ReceiptModel.create(newReceipt);
+        const newReceipt: Partial<IReceipt> = {
+          paymentSource: env.PAYMENT_SOURCE.app,
+          receiptFor: "labreport",
+          paymentRemarks: body.paymentRemarks,
+          orderId: order.id,
+          receiptId: order.receipt,
+          amount: order.amount,
+          currency: order.currency,
+          status: order.status,
+        };
 
-      return res.json(newReceipt);
+        await ReceiptModel.create(newReceipt);
+
+        return res.json(newReceipt);
+      }
+
+      return res.json({ error: "No investigations to attend" });
     } catch (err) {
       return next(err);
     }
   }
 
   @bind
-  public async verifyReportPayment(
+  public async verifyAppointmentReportPayment(
     req: Request,
     res: Response,
     next: NextFunction
@@ -287,7 +306,7 @@ export class LaboratoryController {
   ): Promise<Response | void> {
     try {
       const body = {
-        reportId: req.body.reportId,
+        reportIdArray: req.body.reportIdArray,
         scheduledDate: req.body.scheduledDate,
         scheduledTime: req.body.scheduledTime,
         instructions: req.body.instructions,
@@ -300,11 +319,14 @@ export class LaboratoryController {
         0
       );
 
-      await LabReportModel.findByIdAndUpdate(body.reportId, {
-        scheduledDateTime: scheduledDateTime,
-        instructions: body.instructions,
-        status: env.LAB_REPORT_STATUS.scheduled,
-      });
+      await LabReportModel.updateMany(
+        { _id: { $in: body.reportIdArray } },
+        {
+          scheduledDateTime,
+          status: env.LAB_REPORT_STATUS.scheduled,
+          instructions: body.instructions,
+        }
+      );
 
       return res.json({ message: "Date set" });
     } catch (err) {
