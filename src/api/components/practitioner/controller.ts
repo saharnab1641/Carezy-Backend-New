@@ -67,7 +67,7 @@ export class PractitionerController {
           lastName: 1,
           gender: 1,
           username: 1,
-          _id: 0,
+          _id: 1,
         })
         .exec();
       return res.json({ practitioners });
@@ -86,10 +86,8 @@ export class PractitionerController {
 
       const practitioner: IPractitioner = await PractitionerModel.findOne({
         username,
-      })
-        .select({ _id: 0 })
-        .exec();
-      res;
+      });
+
       return res.json(practitioner);
     } catch (err) {
       return next(err);

@@ -30,14 +30,14 @@ export class LaboratoryRoutes
       this.controller.getInvestigations
     );
     this.router.post(
-      "/createreportorder",
+      "/createappointmentreportorder",
       // this.authService.isAuthorized(),
-      this.controller.createReportOrder
+      this.controller.createAppointmentReportOrder
     );
     this.router.post(
-      "/verifyreportpayment",
+      "/verifyappointmentreportpayment",
       // this.authService.isAuthorized(),
-      this.controller.verifyReportPayment
+      this.controller.verifyAppointmentReportPayment
     );
     this.router.get(
       "/getreports",

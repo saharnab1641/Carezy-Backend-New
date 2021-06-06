@@ -34,13 +34,9 @@ export class PatientController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      const username = req.body.username;
+      const patientId = req.body.patientId;
 
-      const patient: IPatient = await PatientModel.findOne({
-        username: username,
-      })
-        .select({ _id: 0 })
-        .exec();
+      const patient: IPatient = await PatientModel.findById(patientId);
       return res.json(patient);
     } catch (err) {
       return next(err);
@@ -53,9 +49,28 @@ export class PatientController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
+      const body: any = {
+        bloodGroup: req.body.bloodGroup,
+        personalHistory: req.body.personalHistory,
+        familyHistory: req.body.familyHistory,
+        ongoingMedications: req.body.ongoingMedications,
+        allergies: req.body.allergies,
+        lifestyle: req.body.lifestyle,
+        surgeries: req.body.surgeries,
+        immunization: req.body.immunization,
+      };
+
+      Object.keys(body).forEach(
+        (key) =>
+          (body[key] === undefined ||
+            body[key] === null ||
+            body[key] === NaN) &&
+          delete body[key]
+      );
+
       await PatientModel.updateOne(
         { username: req.body.patientUsername },
-        req.body.patientInfo
+        body
       );
       return res.json({ message: "Details updated" });
     } catch (err) {
