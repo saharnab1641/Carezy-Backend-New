@@ -34,7 +34,7 @@ export class AppointmentController {
       const dayEnd = new Date(req.body.appointmentDate);
       dayEnd.setHours(23, 59, 59);
       const slotsTaken = await AppointmentModel.find({
-        doctorUsername: req.body.doctorUsername,
+        doctorId: req.body.doctorId,
         appointmentDateTime: {
           $gte: new Date(dayStart.toISOString()),
           $lte: new Date(dayEnd.toISOString()),
@@ -319,8 +319,6 @@ export class AppointmentController {
           DDSHash: 0,
           createdAt: 0,
           updatedAt: 0,
-          patientId: 0,
-          doctorId: 0,
         })
         .exec();
       return res.json({ appointments });
