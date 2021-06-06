@@ -34,11 +34,9 @@ export class PatientController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      const username = req.body.username;
+      const patientId = req.body.patientId;
 
-      const patient: IPatient = await PatientModel.findOne({
-        username: username,
-      });
+      const patient: IPatient = await PatientModel.findById(patientId);
       return res.json(patient);
     } catch (err) {
       return next(err);
