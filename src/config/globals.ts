@@ -40,10 +40,21 @@ enum LAB_REPORT_STATUS {
   completed = "completed",
 }
 
+enum CHANGE_TOKEN_ENUM {
+  created = "created",
+  used = "used",
+}
+
+enum CHANGE_TOKEN_RESOURCE_ENUM {
+  password = "password",
+  email = "email",
+}
+
 export const env = {
   NODE_ENV: process.env.NODE_ENV || "development",
   PORT: process.env.NODE_PORT || process.env.PORT || 3000,
   MONGODB_URI: process.env.MONGODB_URI || "mongodb://localhost:27017/test",
+  CLIENT_BASE_URL: process.env.CLIENT_BASE_URL || "localhost:4200",
   JWT_RSA_PRIVATE_KEY: Buffer.from(
     process.env.JWT_RSA_PRIVATE_KEY_BASE64 || "RSAPRIVATEKEYINBASE64",
     "base64"
@@ -71,4 +82,6 @@ export const env = {
   RECEIPT_STATUS,
   PAYMENT_SOURCE,
   LAB_REPORT_STATUS,
+  CHANGE_TOKEN_ENUM,
+  CHANGE_TOKEN_RESOURCE_ENUM,
 };
