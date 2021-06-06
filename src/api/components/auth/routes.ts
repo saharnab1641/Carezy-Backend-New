@@ -22,5 +22,13 @@ export class AuthRoutes implements IComponentRoutes<AuthController> {
       this.fileTransferService.multer.single("file"),
       this.controller.updatePicture
     );
+    this.router.post("/initupdatepassword", this.controller.initUpdatePassword);
+    this.router.post(
+      "/confirmupdatepassword",
+      this.controller.confirmUpdatePassword
+    );
+    this.router.post("/initupdateemail", this.controller.initUpdateEmail);
+    this.router.post("/confirmupdateemail", this.controller.confirmUpdateEmail);
+    this.router.post("/updateuserdetail", this.controller.updateUserDetail);
   }
 }
