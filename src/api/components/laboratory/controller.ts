@@ -16,6 +16,7 @@ import { env } from "../../../config/globals";
 import { AppointmentModel, IAppointment } from "../appointment/model";
 import { IPractitioner, PractitionerModel } from "../practitioner/model";
 import { Types as mongooseTypes } from "mongoose";
+import { IPatient, PatientModel } from "../patient/model";
 
 export class LaboratoryController {
   readonly mailService: MailService;
@@ -230,6 +231,20 @@ export class LaboratoryController {
           $gte: new Date(dayStart.toISOString()),
           $lte: new Date(dayEnd.toISOString()),
         };
+      }
+
+      if (req.body.patientUsername) {
+        const patient: IPatient = await PatientModel.findOne({
+          username: req.body.patientUsername,
+        });
+        filters.patientId = patient._id;
+      }
+
+      if (req.body.doctorUsername) {
+        const doctor: IPractitioner = await PractitionerModel.findOne({
+          username: req.body.doctorUsername,
+        });
+        filters.doctorId = doctor._id;
       }
 
       if (req.body.patientName) {
