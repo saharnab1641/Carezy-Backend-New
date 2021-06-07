@@ -57,8 +57,14 @@ export class PractitionerController {
       const filters: any = {
         role: req.body.role,
       };
-      if (req.body.specializationCode)
+      if (req.body.specializationCode) {
         filters.specializationCode = req.body.specializationCode;
+      }
+
+      if (req.body.specializationName) {
+        filters.specializationName = req.body.specializationName;
+      }
+
       const practitioners: Array<IPractitioner> = await PractitionerModel.find(
         filters
       )

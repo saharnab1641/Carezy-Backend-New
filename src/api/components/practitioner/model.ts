@@ -191,6 +191,7 @@ export const SpecializationSchema: Schema<ISpecialization> =
     name: {
       type: String,
       required: true,
+      unique: true,
     },
     code: {
       type: String,
