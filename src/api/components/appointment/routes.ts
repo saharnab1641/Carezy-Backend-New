@@ -39,7 +39,7 @@ export class AppointmentRoutes
       // this.authService.isAuthorized(),
       this.controller.verifyPayment
     );
-    this.router.get(
+    this.router.post(
       "/getappointments",
       // this.authService.isAuthorized(),
       this.controller.getAppointments
@@ -60,7 +60,7 @@ export class AppointmentRoutes
       this.fileTransferService.multer.single("file"),
       this.controller.endConsultation
     );
-    this.router.get(
+    this.router.post(
       "/downloadconsultation",
       // this.authService.isAuthorized(),
       this.controller.downloadConsultation

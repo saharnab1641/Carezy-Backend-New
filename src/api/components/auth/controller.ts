@@ -111,20 +111,25 @@ export class AuthController {
         false,
         env.ALLOWEDIMAGETYPES
       );
+
       await AuthModel.updateOne(
         { username: req.body.username },
         { profileImageURL: response }
       );
 
+      let user: any;
+
       if (req.body.role === env.ROLE_ENUM.patient) {
-        await PatientModel.updateOne(
+        user = await PatientModel.findOneAndUpdate(
           { username: req.body.username },
-          { profileImageURL: response }
+          { profileImageURL: response },
+          { returnOriginal: false }
         );
       } else {
-        await PractitionerModel.updateOne(
+        user = await PractitionerModel.findOneAndUpdate(
           { username: req.body.username },
-          { profileImageURL: response }
+          { profileImageURL: response },
+          { returnOriginal: false }
         );
       }
 
@@ -139,7 +144,7 @@ export class AuthController {
       ];
       await this.FHIRService.patchResource(
         req.body.role === env.ROLE_ENUM.patient ? "Patient" : "Practitioner",
-        req.body.fhirId,
+        user.fhirId,
         patchOptions
       );
 
@@ -231,7 +236,9 @@ export class AuthController {
         username: req.body.username,
       });
 
-      if (!user.isValidPassword(req.body.password)) {
+      const valid = await user.isValidPassword(req.body.password);
+
+      if (!valid) {
         return res.json({ error: "Invalid request" });
       }
 
@@ -282,28 +289,47 @@ export class AuthController {
           valid
         ) {
           session.startTransaction();
+
           await AuthModel.updateOne(
             { username: req.body.username },
             { email: token.newEmail },
             { session }
           );
+
+          let resource: any;
+
           if (user.role === env.ROLE_ENUM.patient) {
-            await PatientModel.updateOne(
+            resource = await PatientModel.findOneAndUpdate(
               { username: req.body.username },
               { email: token.newEmail },
-              { session }
+              { session, returnOriginal: false }
             );
           } else {
-            await PractitionerModel.updateOne(
+            await PractitionerModel.findOneAndUpdate(
               { username: req.body.username },
               { email: token.newEmail },
-              { session }
+              { session, returnOriginal: false }
             );
           }
 
           await ChangeTokenModel.findByIdAndUpdate(token._id, {
             status: env.CHANGE_TOKEN_ENUM.used,
           });
+
+          const telecomFHIR = this.FHIRService.getTelecomFHIR(
+            undefined,
+            token.newEmail,
+            undefined
+          );
+
+          const patchOptions = [
+            { op: "add", path: "/telecom/-", value: telecomFHIR[0] },
+          ];
+          await this.FHIRService.patchResource(
+            user.role === env.ROLE_ENUM.patient ? "Patient" : "Practitioner",
+            resource.fhirId,
+            patchOptions
+          );
 
           await session.commitTransaction();
           session.endSession();
@@ -335,7 +361,9 @@ export class AuthController {
           username: req.body.username,
         });
 
-        if (!user.isValidPassword(req.body.password)) {
+        const valid = await user.isValidPassword(req.body.password);
+
+        if (!valid) {
           session.endSession();
           return res.json({ error: "Invalid request" });
         }

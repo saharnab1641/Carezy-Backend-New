@@ -39,7 +39,7 @@ export class LaboratoryRoutes
       // this.authService.isAuthorized(),
       this.controller.verifyAppointmentReportPayment
     );
-    this.router.get(
+    this.router.post(
       "/getreports",
       // this.authService.isAuthorized(),
       this.controller.getReports
@@ -55,7 +55,7 @@ export class LaboratoryRoutes
       this.fileTransferService.multer.single("file"),
       this.controller.uploadReport
     );
-    this.router.get(
+    this.router.post(
       "/downloadreport",
       // this.authService.isAuthorized(),
       this.controller.downloadReport

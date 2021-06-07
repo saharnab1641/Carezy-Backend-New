@@ -75,17 +75,18 @@ export class FHIRService {
     });
 
   public getTelecomFHIR = (
-    contact: String,
+    contact?: String,
     email?: String,
     contactAlternate?: String
   ): R4.IContactPoint[] => {
-    const telecom: R4.IContactPoint[] = [
-      {
+    const telecom: R4.IContactPoint[] = [];
+    if (contact) {
+      telecom.push({
         use: R4.ContactPointUseKind._home,
         value: contact.toString(),
         system: R4.ContactPointSystemKind._phone,
-      },
-    ];
+      });
+    }
     if (email) {
       telecom.push({
         use: R4.ContactPointUseKind._home,
