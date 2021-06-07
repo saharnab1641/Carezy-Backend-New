@@ -463,6 +463,7 @@ export class AppointmentController {
         "Consultation",
         res
       );
+      return;
     } catch (err) {
       return next(err);
     }

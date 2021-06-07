@@ -406,6 +406,7 @@ export class LaboratoryController {
       };
 
       await this.fileTransferService.downloadFile(body.fileName, "Report", res);
+      return;
     } catch (err) {
       return next(err);
     }
