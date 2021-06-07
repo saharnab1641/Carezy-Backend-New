@@ -388,7 +388,8 @@ export class AppointmentController {
     next: NextFunction
   ): Promise<Response | void> {
     try {
-      const { appointmentId, ...consultationDetails }: any = { ...req.body };
+      const parsedJSON = JSON.parse(req.body.jsonString);
+      const { appointmentId, ...consultationDetails }: any = parsedJSON;
       if (req.file) {
         const response = await this.fileTransferService.uploadFile(
           "consultation",
@@ -405,7 +406,7 @@ export class AppointmentController {
         setFields["consultationDetails." + field] = consultationDetails[field];
       }
 
-      await AppointmentModel.findByIdAndUpdate(req.body.appointmentId, {
+      await AppointmentModel.findByIdAndUpdate(parsedJSON.appointmentId, {
         $set: { ...setFields },
         status: env.APPOINTMENT_STATUS.consulted,
       });
