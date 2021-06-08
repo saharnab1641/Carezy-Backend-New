@@ -268,6 +268,20 @@ export class AppointmentController {
         };
       }
 
+      if (req.body.patientUsername) {
+        const patient: IPatient = await PatientModel.findOne({
+          username: req.body.patientUsername,
+        });
+        filters.patientId = patient._id;
+      }
+
+      if (req.body.doctorUsername) {
+        const doctor: IPractitioner = await PractitionerModel.findOne({
+          username: req.body.doctorUsername,
+        });
+        filters.doctorId = doctor._id;
+      }
+
       if (req.body.status) {
         filters.status = req.body.status;
       }
