@@ -39,7 +39,14 @@ export class AppointmentController {
           $gte: new Date(dayStart.toISOString()),
           $lte: new Date(dayEnd.toISOString()),
         },
-        status: env.APPOINTMENT_STATUS.approved,
+        status: {
+          $in: [
+            env.APPOINTMENT_STATUS.approved,
+            env.APPOINTMENT_STATUS.pending,
+            env.APPOINTMENT_STATUS.consulted,
+            env.APPOINTMENT_STATUS.inclinic,
+          ],
+        },
       })
         .sort({ appointmentDateTime: 1 })
         .select({ appointmentDateTime: 1, _id: 0 })
