@@ -194,6 +194,9 @@ export class AuthController {
         username: req.body.username,
       });
       const token = await ChangeTokenModel.findOne({ userAuthId: user._id });
+      if (!token) {
+        return res.json({ error: "Invalid link" });
+      }
 
       const valid = await token.isValidToken(req.body.token);
 
@@ -275,10 +278,16 @@ export class AuthController {
     try {
       var session: ClientSession = await startSession();
       try {
+        session.startTransaction();
         const user: IAuth = await AuthModel.findOne({
           username: req.body.username,
         });
         const token = await ChangeTokenModel.findOne({ userAuthId: user._id });
+        if (!token) {
+          await session.abortTransaction();
+          session.endSession();
+          return res.json({ error: "Invalid link" });
+        }
 
         const valid = await token.isValidToken(req.body.token);
 
@@ -288,8 +297,6 @@ export class AuthController {
           token.changeResource === env.CHANGE_TOKEN_RESOURCE_ENUM.email &&
           valid
         ) {
-          session.startTransaction();
-
           await AuthModel.updateOne(
             { username: req.body.username },
             { email: token.newEmail },
@@ -302,13 +309,13 @@ export class AuthController {
             resource = await PatientModel.findOneAndUpdate(
               { username: req.body.username },
               { email: token.newEmail },
-              { session, returnOriginal: false }
+              { session, returnOriginal: true }
             );
           } else {
-            await PractitionerModel.findOneAndUpdate(
+            resource = await PractitionerModel.findOneAndUpdate(
               { username: req.body.username },
               { email: token.newEmail },
-              { session, returnOriginal: false }
+              { session, returnOriginal: true }
             );
           }
 
@@ -317,9 +324,8 @@ export class AuthController {
           });
 
           const telecomFHIR = this.FHIRService.getTelecomFHIR(
-            undefined,
-            token.newEmail,
-            undefined
+            [],
+            token.newEmail
           );
 
           const patchOptions = [
@@ -357,6 +363,7 @@ export class AuthController {
     try {
       var session: ClientSession = await startSession();
       try {
+        session.startTransaction();
         const user = await AuthModel.findOne({
           username: req.body.username,
         });
@@ -364,20 +371,40 @@ export class AuthController {
         const valid = await user.isValidPassword(req.body.password);
 
         if (!valid) {
+          await session.abortTransaction();
           session.endSession();
           return res.json({ error: "Invalid request" });
         }
 
-        const setFields: any = {
+        const patchOptions = [];
+
+        var setFields: any = {
           contact: req.body.contact,
           contactAlternate: req.body.contactAlternate,
           maritalStatusBoolean: req.body.maritalStatusBoolean,
-          state: req.body.state,
-          city: req.body.city,
-          pincode: req.body.pincode,
-          address: req.body.address,
           username: req.body.newUsername,
         };
+
+        if (req.body.state && req.body.city && req.body.pincode) {
+          setFields = {
+            ...setFields,
+            state: req.body.state,
+            city: req.body.city,
+            pincode: req.body.pincode,
+            address: req.body.address,
+          };
+          const addressFHIR = this.FHIRService.getAddressFHIR(
+            setFields.city,
+            setFields.state,
+            setFields.pincode,
+            setFields.address
+          );
+          patchOptions.push({
+            op: "add",
+            path: "/address/-",
+            value: addressFHIR,
+          });
+        }
 
         Object.keys(setFields).forEach(
           (key) =>
@@ -387,7 +414,43 @@ export class AuthController {
             delete setFields[key]
         );
 
-        session.startTransaction();
+        if (setFields.contact) {
+          const telecomFHIR = this.FHIRService.getTelecomFHIR([
+            setFields.contact,
+          ]);
+          patchOptions.push({
+            op: "add",
+            path: "/telecom/-",
+            value: telecomFHIR[0],
+          });
+        }
+
+        if (setFields.contactAlternate) {
+          const telecomFHIR = this.FHIRService.getTelecomFHIR([
+            setFields.contactAlternate,
+          ]);
+          patchOptions.push({
+            op: "add",
+            path: "/telecom/-",
+            value: telecomFHIR[0],
+          });
+        }
+
+        if (
+          setFields.maritalStatusBoolean &&
+          user.role === env.ROLE_ENUM.patient
+        ) {
+          const maritalStatusFHIR = this.FHIRService.getMaritalFHIR(
+            setFields.maritalStatusBoolean
+          );
+          patchOptions.push({
+            op: "add",
+            path: "/maritalStatus",
+            value: maritalStatusFHIR,
+          });
+        }
+
+        let resource: any;
 
         if (setFields) {
           if (setFields.username) {
@@ -399,18 +462,24 @@ export class AuthController {
           }
 
           if (user.role === env.ROLE_ENUM.patient) {
-            await PatientModel.updateOne(
+            resource = await PatientModel.findOneAndUpdate(
               { username: req.body.username },
               setFields,
-              { session }
+              { session, returnOriginal: true }
             );
           } else {
-            await PractitionerModel.updateOne(
+            resource = await PractitionerModel.findOneAndUpdate(
               { username: req.body.username },
               setFields,
-              { session }
+              { session, returnOriginal: true }
             );
           }
+
+          await this.FHIRService.patchResource(
+            user.role === env.ROLE_ENUM.patient ? "Patient" : "Practitioner",
+            resource.fhirId,
+            patchOptions
+          );
         }
 
         await session.commitTransaction();

@@ -75,30 +75,24 @@ export class FHIRService {
     });
 
   public getTelecomFHIR = (
-    contact?: String,
-    email?: String,
-    contactAlternate?: String
+    contact: String[],
+    email?: String
   ): R4.IContactPoint[] => {
     const telecom: R4.IContactPoint[] = [];
-    if (contact) {
-      telecom.push({
-        use: R4.ContactPointUseKind._home,
-        value: contact.toString(),
-        system: R4.ContactPointSystemKind._phone,
-      });
+    for (const index in contact) {
+      if (contact[index]) {
+        telecom.push({
+          use: R4.ContactPointUseKind._home,
+          value: contact[index].toString(),
+          system: R4.ContactPointSystemKind._phone,
+        });
+      }
     }
     if (email) {
       telecom.push({
         use: R4.ContactPointUseKind._home,
         value: email.toString(),
         system: R4.ContactPointSystemKind._email,
-      });
-    }
-    if (contactAlternate) {
-      telecom.push({
-        use: R4.ContactPointUseKind._home,
-        value: contactAlternate.toString(),
-        system: R4.ContactPointSystemKind._phone,
       });
     }
     return telecom;
@@ -144,6 +138,14 @@ export class FHIRService {
     };
   };
 
+  public getMaritalFHIR = (
+    maritalStatusBoolean: boolean
+  ): R4.ICodeableConcept => {
+    return {
+      text: maritalStatusBoolean ? "married" : "unmarried",
+    };
+  };
+
   public getPatientFHIR = (patient: IPatient): R4.IPatient => {
     try {
       const fhirObj: R4.IPatient = {
@@ -152,17 +154,14 @@ export class FHIRService {
         deceasedBoolean: false,
         name: [this.getNameFHIR(patient.firstName, patient.lastName)],
         telecom: this.getTelecomFHIR(
-          patient.contact,
-          patient.email,
-          patient.contactAlternate
+          [patient.contact, patient.contactAlternate],
+          patient.email
         ),
         birthDate: patient.dateOfBirth.toISOString().split("T")[0],
         address: [
           this.getAddressFHIR(patient.city, patient.state, patient.pincode),
         ],
-        maritalStatus: {
-          text: patient.maritalStatusBoolean ? "married" : "unmarried",
-        },
+        maritalStatus: this.getMaritalFHIR(patient.maritalStatusBoolean),
       };
 
       if (patient.gender === env.GENDER_ENUM.male)
@@ -178,11 +177,10 @@ export class FHIRService {
               patient.guardian.firstName,
               patient.guardian.lastName
             ),
-            telecom: this.getTelecomFHIR(
+            telecom: this.getTelecomFHIR([
               patient.guardian.contact,
-              undefined,
-              patient.guardian.contactAlternate
-            ),
+              patient.guardian.contactAlternate,
+            ]),
           },
         ];
 
@@ -208,9 +206,8 @@ export class FHIRService {
         name: [this.getNameFHIR(practitioner.firstName, practitioner.lastName)],
         active: true,
         telecom: this.getTelecomFHIR(
-          practitioner.contact,
-          practitioner.email,
-          practitioner.contactAlternate
+          [practitioner.contact, practitioner.contactAlternate],
+          practitioner.email
         ),
         address: [
           this.getAddressFHIR(
